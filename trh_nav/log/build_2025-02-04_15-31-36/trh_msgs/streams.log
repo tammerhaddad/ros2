@@ -1,0 +1,42 @@
+[1.808s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tammerhaddad/ament_ws/install/stretch_demos:/home/tammerhaddad/ament_ws/install/stretch_deep_perception:/home/tammerhaddad/ament_ws/install/stretch_core:/home/tammerhaddad/ament_ws/install/pose_sender:/home/tammerhaddad/ament_ws/install/my_nav:/home/tammerhaddad/ament_ws/install/hello_helpers:/opt/ros/humble /usr/bin/cmake /home/tammerhaddad/ament_ws/src/trh_nav/trh_msgs -DCMAKE_INSTALL_PREFIX=/home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs
+[1.946s] -- The C compiler identification is GNU 11.4.0
+[2.066s] -- The CXX compiler identification is GNU 11.4.0
+[2.080s] -- Detecting C compiler ABI info
+[2.192s] -- Detecting C compiler ABI info - done
+[2.209s] -- Check for working C compiler: /usr/bin/cc - skipped
+[2.209s] -- Detecting C compile features
+[2.210s] -- Detecting C compile features - done
+[2.214s] -- Detecting CXX compiler ABI info
+[2.339s] -- Detecting CXX compiler ABI info - done
+[2.355s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[2.356s] -- Detecting CXX compile features
+[2.356s] -- Detecting CXX compile features - done
+[2.369s] -- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)
+[2.778s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[3.043s] -- Found ament_lint_auto: 0.12.11 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[3.252s] -- Added test 'lint_cmake' to check CMake code style
+[3.256s] -- Added test 'xmllint' to check XML markup files
+[3.260s] -- Configuring done
+[3.265s] -- Generating done
+[3.268s] -- Build files have been written to: /home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs
+[3.275s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tammerhaddad/ament_ws/install/stretch_demos:/home/tammerhaddad/ament_ws/install/stretch_deep_perception:/home/tammerhaddad/ament_ws/install/stretch_core:/home/tammerhaddad/ament_ws/install/pose_sender:/home/tammerhaddad/ament_ws/install/my_nav:/home/tammerhaddad/ament_ws/install/hello_helpers:/opt/ros/humble /usr/bin/cmake /home/tammerhaddad/ament_ws/src/trh_nav/trh_msgs -DCMAKE_INSTALL_PREFIX=/home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs
+[3.278s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tammerhaddad/ament_ws/install/stretch_demos:/home/tammerhaddad/ament_ws/install/stretch_deep_perception:/home/tammerhaddad/ament_ws/install/stretch_core:/home/tammerhaddad/ament_ws/install/pose_sender:/home/tammerhaddad/ament_ws/install/my_nav:/home/tammerhaddad/ament_ws/install/hello_helpers:/opt/ros/humble /usr/bin/cmake --build /home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs -- -j8 -l8
+[3.336s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tammerhaddad/ament_ws/install/stretch_demos:/home/tammerhaddad/ament_ws/install/stretch_deep_perception:/home/tammerhaddad/ament_ws/install/stretch_core:/home/tammerhaddad/ament_ws/install/pose_sender:/home/tammerhaddad/ament_ws/install/my_nav:/home/tammerhaddad/ament_ws/install/hello_helpers:/opt/ros/humble /usr/bin/cmake --build /home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs -- -j8 -l8
+[3.353s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tammerhaddad/ament_ws/install/stretch_demos:/home/tammerhaddad/ament_ws/install/stretch_deep_perception:/home/tammerhaddad/ament_ws/install/stretch_core:/home/tammerhaddad/ament_ws/install/pose_sender:/home/tammerhaddad/ament_ws/install/my_nav:/home/tammerhaddad/ament_ws/install/hello_helpers:/opt/ros/humble /usr/bin/cmake --install /home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs
+[3.365s] -- Install configuration: ""
+[3.365s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/ament_index/resource_index/package_run_dependencies/trh_msgs
+[3.365s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/ament_index/resource_index/parent_prefix_path/trh_msgs
+[3.365s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/ament_prefix_path.sh
+[3.366s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/ament_prefix_path.dsv
+[3.366s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/path.sh
+[3.366s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/path.dsv
+[3.366s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.bash
+[3.366s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.sh
+[3.367s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.zsh
+[3.367s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.dsv
+[3.367s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/package.dsv
+[3.368s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/ament_index/resource_index/packages/trh_msgs
+[3.368s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/cmake/trh_msgsConfig.cmake
+[3.369s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/cmake/trh_msgsConfig-version.cmake
+[3.369s] -- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/package.xml
+[3.372s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/tammerhaddad/ament_ws/install/stretch_demos:/home/tammerhaddad/ament_ws/install/stretch_deep_perception:/home/tammerhaddad/ament_ws/install/stretch_core:/home/tammerhaddad/ament_ws/install/pose_sender:/home/tammerhaddad/ament_ws/install/my_nav:/home/tammerhaddad/ament_ws/install/hello_helpers:/opt/ros/humble /usr/bin/cmake --install /home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs

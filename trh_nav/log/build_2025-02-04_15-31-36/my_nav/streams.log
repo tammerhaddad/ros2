@@ -1,0 +1,38 @@
+[2.769s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_nav/my_nav': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/my_nav build --build-base /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build install --record /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/install.log --single-version-externally-managed install_data
+[3.334s] running egg_info
+[3.335s] creating ../build/my_nav/my_nav.egg-info
+[3.335s] writing ../build/my_nav/my_nav.egg-info/PKG-INFO
+[3.336s] writing dependency_links to ../build/my_nav/my_nav.egg-info/dependency_links.txt
+[3.336s] writing entry points to ../build/my_nav/my_nav.egg-info/entry_points.txt
+[3.336s] writing requirements to ../build/my_nav/my_nav.egg-info/requires.txt
+[3.337s] writing top-level names to ../build/my_nav/my_nav.egg-info/top_level.txt
+[3.337s] writing manifest file '../build/my_nav/my_nav.egg-info/SOURCES.txt'
+[3.339s] reading manifest file '../build/my_nav/my_nav.egg-info/SOURCES.txt'
+[3.339s] adding license file 'LICENSE'
+[3.340s] writing manifest file '../build/my_nav/my_nav.egg-info/SOURCES.txt'
+[3.340s] running build
+[3.340s] running build_py
+[3.340s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build
+[3.341s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build/lib
+[3.341s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build/lib/my_nav
+[3.341s] copying my_nav/my_nav.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build/lib/my_nav
+[3.341s] copying my_nav/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build/lib/my_nav
+[3.341s] running install
+[3.341s] running install_lib
+[3.343s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages/my_nav
+[3.343s] copying /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build/lib/my_nav/my_nav.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages/my_nav
+[3.343s] copying /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build/lib/my_nav/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages/my_nav
+[3.344s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages/my_nav/my_nav.py to my_nav.cpython-310.pyc
+[3.345s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages/my_nav/__init__.py to __init__.cpython-310.pyc
+[3.345s] running install_data
+[3.345s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/share/ament_index
+[3.346s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/share/ament_index/resource_index
+[3.346s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/share/ament_index/resource_index/packages
+[3.346s] copying resource/my_nav -> /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/share/ament_index/resource_index/packages
+[3.346s] copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/share/my_nav
+[3.346s] running install_egg_info
+[3.351s] Copying ../build/my_nav/my_nav.egg-info to /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages/my_nav-0.0.0-py3.10.egg-info
+[3.352s] running install_scripts
+[3.396s] Installing trh_nav script to /home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/my_nav
+[3.396s] writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/install.log'
+[3.453s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_nav/my_nav' returned '0': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_nav/install/my_nav/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/my_nav build --build-base /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/build install --record /home/tammerhaddad/ament_ws/src/trh_nav/build/my_nav/install.log --single-version-externally-managed install_data

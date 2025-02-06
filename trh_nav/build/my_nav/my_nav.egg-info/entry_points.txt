@@ -1,0 +1,3 @@
+[console_scripts]
+trh_nav = my_nav.my_nav:main
+

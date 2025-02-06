@@ -1,0 +1,4 @@
+source;share/trh_msgs/local_setup.bash
+source;share/trh_msgs/local_setup.dsv
+source;share/trh_msgs/local_setup.sh
+source;share/trh_msgs/local_setup.zsh
