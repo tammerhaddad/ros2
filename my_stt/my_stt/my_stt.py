@@ -128,14 +128,18 @@ class SpeechToText(Node):
         current_time = time.strftime('%H:%M:%S', time.localtime())
         milliseconds = int((time.time() % 1) * 1000)
         self.publisher2.publish(String(data='[{time}:{milliseconds}]: Audio processed.'.format(time=current_time, milliseconds=milliseconds)))
-        
-        self.publisher.publish(String(data=text))
+
         # self.action_client.wait_for_server()
         # goal_msg = TTS2.Goal()
         # goal_msg.tts = text
         # self.action_client.send_goal_async(goal_msg)
 
         self.get_logger().info(f'Recognized text: {text}')
+
+        if text.length > 0:
+            self.publisher.publish(String(data=text))
+        else: 
+            self.get_logger().info('No text recognized, not publishing')
 
 def main(args=None):
     rclpy.init(args=args)
