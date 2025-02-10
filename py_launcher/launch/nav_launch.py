@@ -3,6 +3,13 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
+    nav_driver_launch = IncludeLaunchDescription(
+      PythonLaunchDescriptionSource([os.path.join(
+         get_package_share_directory('stretch_nav2'), 'launch'),
+         'navigation.launch.py']),
+         launch_arguments={'map': os.path.join(os.getenv('HELLO_FLEET_PATH'), 'maps', 'local_correct_map.yaml')}.items(),
+      )
+
     speech_to_audio = Node(
         package = 'audio_common',
         executable = 'audio_capturer_node',
@@ -37,6 +44,7 @@ def generate_launch_description():
     )
 
     return launch.LaunchDescription([
+        nav_driver_launch,
         speech_to_audio,
         audio_to_text,
         text_to_directions,

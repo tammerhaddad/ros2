@@ -17,7 +17,6 @@ setup(
     maintainer_email='tammerhaddad@todo.todo',
     description='TODO: Package description',
     license='Apache-2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'send_dir = text_to_directions.text_to_directions:main'
