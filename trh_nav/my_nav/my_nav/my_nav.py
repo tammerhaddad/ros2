@@ -8,14 +8,14 @@ class myNavigator(Node):
     def __init__(self):
         super().__init__("my_nav")
         self.navigator = BasicNavigator()
-        initial_pose = PoseStamped()
-        initial_pose.header.frame_id = 'map'
-        initial_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        initial_pose.pose.position.x = 0.0
-        initial_pose.pose.position.y = 0.0
-        initial_pose.pose.orientation.z = 0.0
-        initial_pose.pose.orientation.w = 1.0
-        self.navigator.setInitialPose(initial_pose)
+        self.initial_pose = PoseStamped()
+        self.initial_pose.header.frame_id = 'map'
+        self.initial_pose.header.stamp = self.navigator.get_clock().now().to_msg()
+        self.initial_pose.pose.position.x = 0.0
+        self.initial_pose.pose.position.y = 0.0
+        self.initial_pose.pose.orientation.z = 0.0
+        self.initial_pose.pose.orientation.w = 1.0
+        self.navigator.setInitialPose(self.initial_pose)
         self.navigator.waitUntilNav2Active()
         self.subscription = self.create_subscription(
             PoseStamped,
@@ -40,19 +40,16 @@ class myNavigator(Node):
                 self.navigator.get_logger().info('Executing current waypoint: (' +
                     str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ").")
                 now = self.navigator.get_clock().now()
-
+  
                 # Some navigation timeout to demo cancellation
                 if now - nav_start > Duration(seconds=120.0):
                     self.navigator.cancelTask()
-        
-        # back_home = Coord
-        # back_home.x = 0.0
-        # back_home.y = 0.0
-        # self.navigate(back_home)
 
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             self.navigator.get_logger().info('Route complete! Restarting...')
+            self.get_logger().info('Navigation complete!, returning home.')
+            self.navigate(self.initial_pose)
         elif result == TaskResult.CANCELED:
             self.navigator.get_logger().info('Security route was canceled, exiting.')
             rclpy.shutdown()

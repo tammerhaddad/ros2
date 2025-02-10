@@ -1,8 +1,21 @@
 import launch
+import os
 from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
 
+    nav_driver_launch = IncludeLaunchDescription(
+      PythonLaunchDescriptionSource([os.path.join(
+         get_package_share_directory('stretch_nav2'), 'launch'),
+         'navigation.launch.py']),
+         launch_arguments={'map': os.path.join(os.getenv('HELLO_FLEET_PATH'), 'maps', 'local_correct_map.yaml')}.items(),
+      )
+    
     speech_to_audio = Node(
         package = 'audio_common',
         executable = 'audio_capturer_node',
