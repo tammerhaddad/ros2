@@ -17,20 +17,20 @@
 -- Added test 'xmllint' to check XML markup files
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs
+-- Build files have been written to: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/trh_msgs
 -- Install configuration: ""
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/ament_index/resource_index/package_run_dependencies/trh_msgs
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/ament_index/resource_index/parent_prefix_path/trh_msgs
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/ament_prefix_path.sh
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/ament_prefix_path.dsv
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/path.sh
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/environment/path.dsv
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.bash
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.sh
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.zsh
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.dsv
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/package.dsv
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/ament_index/resource_index/packages/trh_msgs
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/cmake/trh_msgsConfig.cmake
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/cmake/trh_msgsConfig-version.cmake
--- Installing: /home/tammerhaddad/ament_ws/src/trh_nav/install/trh_msgs/share/trh_msgs/package.xml
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/ament_index/resource_index/package_run_dependencies/trh_msgs
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/ament_index/resource_index/parent_prefix_path/trh_msgs
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/environment/ament_prefix_path.sh
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/environment/ament_prefix_path.dsv
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/environment/path.sh
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/environment/path.dsv
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.bash
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.sh
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.zsh
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/local_setup.dsv
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/package.dsv
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/ament_index/resource_index/packages/trh_msgs
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/cmake/trh_msgsConfig.cmake
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/cmake/trh_msgsConfig-version.cmake
+-- Installing: /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/trh_msgs/share/trh_msgs/package.xml

@@ -1,0 +1,45 @@
+import launch
+from launch_ros.actions import Node
+
+def generate_launch_description():
+
+    speech_to_audio = Node(
+        package = 'audio_common',
+        executable = 'audio_capturer_node',
+        name = 'speech_to_audio',
+        remappings=[
+                ('audio', 'input_audio'),
+        ]
+    )
+
+    audio_to_text = Node(
+        package = 'my_stt',
+        executable = 'stt',
+        name = 'audio_to_text',
+    )
+
+    text_to_directions = Node(
+        package= 'text_to_directions',
+        executable = 'send_dir',
+        name = 'text_to_directions'
+    )
+
+    pose_sender = Node(
+        package = 'pose_sender',
+        executable = 'send_pose',
+        name = 'pose_sender'
+    )
+
+    trh_nav = Node(
+        package = 'my_nav',
+        executable = 'trh_nav',
+        name = 'trh_navigation'
+    )
+
+    return launch.LaunchDescription([
+        speech_to_audio,
+        audio_to_text,
+        text_to_directions,
+        pose_sender,
+        trh_nav
+    ])

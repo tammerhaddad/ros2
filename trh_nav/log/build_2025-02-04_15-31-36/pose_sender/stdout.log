@@ -11,26 +11,26 @@ adding license file 'LICENSE'
 writing manifest file '../build/pose_sender/pose_sender.egg-info/SOURCES.txt'
 running build
 running build_py
-creating /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build
-creating /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib
-creating /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender
-copying pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender
-copying pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender
+copying pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender
+copying pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender
 running install
 running install_lib
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
-copying /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
-copying /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
-byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/pose_sender.py to pose_sender.cpython-310.pyc
-byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/__init__.py to __init__.cpython-310.pyc
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
+copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
+copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
+byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/pose_sender.py to pose_sender.cpython-310.pyc
+byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/__init__.py to __init__.cpython-310.pyc
 running install_data
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index/resource_index
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
-copying resource/pose_sender -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
-copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/pose_sender
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index/resource_index
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
+copying resource/pose_sender -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
+copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/pose_sender
 running install_egg_info
-Copying ../build/pose_sender/pose_sender.egg-info to /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender-0.0.0-py3.10.egg-info
+Copying ../build/pose_sender/pose_sender.egg-info to /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender-0.0.0-py3.10.egg-info
 running install_scripts
-Installing send_pose script to /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/pose_sender
-writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/install.log'
+Installing send_pose script to /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/pose_sender
+writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/install.log'

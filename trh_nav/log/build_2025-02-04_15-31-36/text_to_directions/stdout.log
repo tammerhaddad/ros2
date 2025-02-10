@@ -11,25 +11,25 @@ adding license file 'LICENSE'
 writing manifest file '../build/text_to_directions/text_to_directions.egg-info/SOURCES.txt'
 running build
 running build_py
-creating /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build
-creating /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib
-creating /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions
-copying text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions
-copying text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions
+copying text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions
+copying text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions
 running install
 running install_lib
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
-copying /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
-copying /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
-byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/text_to_directions.py to text_to_directions.cpython-310.pyc
-byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/__init__.py to __init__.cpython-310.pyc
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
+copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
+copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
+byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/text_to_directions.py to text_to_directions.cpython-310.pyc
+byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/__init__.py to __init__.cpython-310.pyc
 running install_data
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index/resource_index
-creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
-copying resource/text_to_directions -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
-copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/text_to_directions
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index/resource_index
+creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
+copying resource/text_to_directions -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
+copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/text_to_directions
 running install_egg_info
-Copying ../build/text_to_directions/text_to_directions.egg-info to /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions-0.0.0-py3.10.egg-info
+Copying ../build/text_to_directions/text_to_directions.egg-info to /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions-0.0.0-py3.10.egg-info
 running install_scripts
-writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/install.log'
+writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/install.log'

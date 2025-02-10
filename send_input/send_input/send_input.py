@@ -4,7 +4,7 @@ from openai import OpenAI
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from audio_common_msgs.action import TTS
-from parcs_stt_tts_msgs.action import TTS as parcs_TTS
+# from parcs_stt_tts_msgs.action import TTS as parcs_TTS
 from std_msgs.msg import String
 import time
 
@@ -24,24 +24,28 @@ class InputSender(Node):
             10)
         # self.subscription
 
-        self.declare_parameter('tts_package', 'parcs')
-        tts_package = self.get_parameter('tts_package').get_parameter_value().string_value
-        if tts_package == 'parcs':
-            self._action_client = ActionClient(self, parcs_TTS, 'tts')
-        elif tts_package == 'ros':
-            self._action_client = ActionClient(self, TTS, 'say')
-        else:
-            self.get_logger().error('Invalid TTS package specified. Please specify either "parcs" or "ros"')
-            rclpy.shutdown()
+        # self.declare_parameter('tts_package', 'parcs')
+        # tts_package = self.get_parameter('tts_package').get_parameter_value().string_value
+        # if tts_package == 'parcs':
+        #     self._action_client = ActionClient(self, parcs_TTS, 'tts')
+        # elif tts_package == 'ros':
+        #     self._action_client = ActionClient(self, TTS, 'say')
+        # else:
+        #     self.get_logger().error('Invalid TTS package specified. Please specify either "parcs" or "ros"')
+        #     rclpy.shutdown()
+
+        #no parcs
+        self._action_client = ActionClient(self, TTS, 'say')
 
         self.publisher2 = self.create_publisher(String, 'times', 10)
         self.prompt_history = [{"role": "system", "content": "You are a helpful assistant."}]
 
     def send_goal(self, msg):
-        if self.get_parameter('tts_package').get_parameter_value().string_value == 'parcs':
-            goal_msg = parcs_TTS.Goal()
-        else:
-            goal_msg = TTS.Goal()
+        # if self.get_parameter('tts_package').get_parameter_value().string_value == 'parcs':
+        #     goal_msg = parcs_TTS.Goal()
+        # else:
+        #     goal_msg = TTS.Goal()
+        goal_msg = TTS.Goal()
         
         current_time = time.strftime('%H:%M:%S', time.localtime())
         milliseconds = int((time.time() % 1) * 1000)
@@ -59,11 +63,12 @@ class InputSender(Node):
         
         self.get_logger().info('API response: \n{0}\n'.format(response))
 
-        if self.get_parameter('tts_package').get_parameter_value().string_value == 'parcs':
-            goal_msg.tts = response
-        elif self.get_parameter('tts_package').get_parameter_value().string_value == 'ros':
-            goal_msg.text = str(response)
-
+        # if self.get_parameter('tts_package').get_parameter_value().string_value == 'parcs':
+        #     goal_msg.tts = response
+        # elif self.get_parameter('tts_package').get_parameter_value().string_value == 'ros':
+        #     goal_msg.text = str(response)
+        goal_msg.text = str(response)
+        
         self._action_client.wait_for_server()
         self._send_goal_future = self._action_client.send_goal_async(
             goal_msg,

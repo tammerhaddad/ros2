@@ -12,7 +12,7 @@ class dirSender(Node):
         super().__init__('dir_sender')
         self.subscription = self.create_subscription(
             String,
-            'user_instructions',
+            'input_text',
             self.send_directions,
             10
         )

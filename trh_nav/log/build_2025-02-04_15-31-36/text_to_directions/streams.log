@@ -1,4 +1,4 @@
-[2.729s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_nav/text_to_directions': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/text_to_directions build --build-base /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build install --record /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/install.log --single-version-externally-managed install_data
+[2.729s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/text_to_directions': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/text_to_directions build --build-base /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build install --record /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/install.log --single-version-externally-managed install_data
 [3.412s] running egg_info
 [3.413s] creating ../build/text_to_directions/text_to_directions.egg-info
 [3.414s] writing ../build/text_to_directions/text_to_directions.egg-info/PKG-INFO
@@ -12,26 +12,26 @@
 [3.425s] writing manifest file '../build/text_to_directions/text_to_directions.egg-info/SOURCES.txt'
 [3.425s] running build
 [3.425s] running build_py
-[3.425s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build
-[3.425s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib
-[3.425s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions
-[3.425s] copying text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions
-[3.425s] copying text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions
+[3.425s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build
+[3.425s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib
+[3.425s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions
+[3.425s] copying text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions
+[3.425s] copying text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions
 [3.425s] running install
 [3.425s] running install_lib
-[3.426s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
-[3.426s] copying /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
-[3.426s] copying /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build/lib/text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
-[3.427s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/text_to_directions.py to text_to_directions.cpython-310.pyc
-[3.428s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/__init__.py to __init__.cpython-310.pyc
+[3.426s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
+[3.426s] copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions/text_to_directions.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
+[3.426s] copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build/lib/text_to_directions/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions
+[3.427s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/text_to_directions.py to text_to_directions.cpython-310.pyc
+[3.428s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions/__init__.py to __init__.cpython-310.pyc
 [3.428s] running install_data
-[3.429s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index
-[3.429s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index/resource_index
-[3.429s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
-[3.429s] copying resource/text_to_directions -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
-[3.429s] copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/share/text_to_directions
+[3.429s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index
+[3.429s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index/resource_index
+[3.429s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
+[3.429s] copying resource/text_to_directions -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/ament_index/resource_index/packages
+[3.429s] copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/share/text_to_directions
 [3.429s] running install_egg_info
-[3.432s] Copying ../build/text_to_directions/text_to_directions.egg-info to /home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions-0.0.0-py3.10.egg-info
+[3.432s] Copying ../build/text_to_directions/text_to_directions.egg-info to /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages/text_to_directions-0.0.0-py3.10.egg-info
 [3.433s] running install_scripts
-[3.481s] writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/install.log'
-[3.529s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_nav/text_to_directions' returned '0': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_nav/install/text_to_directions/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/text_to_directions build --build-base /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/build install --record /home/tammerhaddad/ament_ws/src/trh_nav/build/text_to_directions/install.log --single-version-externally-managed install_data
+[3.481s] writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/install.log'
+[3.529s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/text_to_directions' returned '0': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/text_to_directions/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/text_to_directions build --build-base /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/build install --record /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/text_to_directions/install.log --single-version-externally-managed install_data

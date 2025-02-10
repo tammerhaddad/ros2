@@ -59,8 +59,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/home/tammerhaddad/ament_ws/src/trh_nav/build/trh_msgs",
-		"source" : "/home/tammerhaddad/ament_ws/src/trh_nav/trh_msgs"
+		"build" : "/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/trh_msgs",
+		"source" : "/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/trh_msgs"
 	},
 	"version" : 
 	{

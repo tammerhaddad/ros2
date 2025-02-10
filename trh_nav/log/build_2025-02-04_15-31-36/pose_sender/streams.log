@@ -1,4 +1,4 @@
-[2.722s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_nav/pose_sender': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/pose_sender build --build-base /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build install --record /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/install.log --single-version-externally-managed install_data
+[2.722s] Invoking command in '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/pose_sender': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/pose_sender build --build-base /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build install --record /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/install.log --single-version-externally-managed install_data
 [3.348s] running egg_info
 [3.349s] creating ../build/pose_sender/pose_sender.egg-info
 [3.350s] writing ../build/pose_sender/pose_sender.egg-info/PKG-INFO
@@ -12,27 +12,27 @@
 [3.356s] writing manifest file '../build/pose_sender/pose_sender.egg-info/SOURCES.txt'
 [3.357s] running build
 [3.357s] running build_py
-[3.357s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build
-[3.357s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib
-[3.357s] creating /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender
-[3.358s] copying pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender
-[3.358s] copying pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender
+[3.357s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build
+[3.357s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib
+[3.357s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender
+[3.358s] copying pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender
+[3.358s] copying pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender
 [3.358s] running install
 [3.358s] running install_lib
-[3.360s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
-[3.360s] copying /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
-[3.360s] copying /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build/lib/pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
-[3.361s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/pose_sender.py to pose_sender.cpython-310.pyc
-[3.362s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/__init__.py to __init__.cpython-310.pyc
+[3.360s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
+[3.360s] copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender/pose_sender.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
+[3.360s] copying /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build/lib/pose_sender/__init__.py -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender
+[3.361s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/pose_sender.py to pose_sender.cpython-310.pyc
+[3.362s] byte-compiling /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender/__init__.py to __init__.cpython-310.pyc
 [3.362s] running install_data
-[3.362s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index
-[3.362s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index/resource_index
-[3.362s] creating /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
-[3.362s] copying resource/pose_sender -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
-[3.363s] copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/share/pose_sender
+[3.362s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index
+[3.362s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index/resource_index
+[3.362s] creating /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
+[3.362s] copying resource/pose_sender -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/ament_index/resource_index/packages
+[3.363s] copying package.xml -> /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/share/pose_sender
 [3.363s] running install_egg_info
-[3.366s] Copying ../build/pose_sender/pose_sender.egg-info to /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender-0.0.0-py3.10.egg-info
+[3.366s] Copying ../build/pose_sender/pose_sender.egg-info to /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages/pose_sender-0.0.0-py3.10.egg-info
 [3.368s] running install_scripts
-[3.402s] Installing send_pose script to /home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/pose_sender
-[3.403s] writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/install.log'
-[3.453s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_nav/pose_sender' returned '0': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_nav/install/pose_sender/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/pose_sender build --build-base /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/build install --record /home/tammerhaddad/ament_ws/src/trh_nav/build/pose_sender/install.log --single-version-externally-managed install_data
+[3.402s] Installing send_pose script to /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/pose_sender
+[3.403s] writing list of installed files to '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/install.log'
+[3.453s] Invoked command in '/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/pose_sender' returned '0': PYTHONPATH=/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/install/pose_sender/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/pose_sender build --build-base /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/build install --record /home/tammerhaddad/ament_ws/src/trh_ros/trh_nav/build/pose_sender/install.log --single-version-externally-managed install_data
