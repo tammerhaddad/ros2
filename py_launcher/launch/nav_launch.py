@@ -11,8 +11,8 @@ def generate_launch_description():
 
     nav_driver_launch = IncludeLaunchDescription(
       PythonLaunchDescriptionSource([os.path.join(
-         get_package_share_directory('stretch_nav2'), 'launch'),
-         'navigation.launch.py']),
+         get_package_share_directory('stretch_nav2'), 'launch',
+         'navigation.launch.py')]),
          launch_arguments={'map': os.path.join(os.getenv('HELLO_FLEET_PATH'), 'maps', 'local_correct_map.yaml')}.items(),
       )
 
