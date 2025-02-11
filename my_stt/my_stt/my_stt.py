@@ -136,7 +136,7 @@ class SpeechToText(Node):
 
         self.get_logger().info(f'Recognized text: {text}')
 
-        if text.length > 0:
+        if len(text) > 0:
             self.publisher.publish(String(data=text))
         else: 
             self.get_logger().info('No text recognized, not publishing')

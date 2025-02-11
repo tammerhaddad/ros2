@@ -49,11 +49,30 @@ def generate_launch_description():
         name = 'trh_navigation'
     )
 
+    text_to_audio = Node(
+        package = 'tts_ros',
+        executable = 'tts_node',
+        name = 'prompt_to_audio',
+        remappings=[
+                ('audio', 'output_audio'),
+            ]
+    )
+
+    audio_to_sound = Node(
+        package = 'audio_common',
+        executable = 'audio_player_node',
+        name = 'audio_to_sound',
+        remappings=[
+                ('audio', 'output_audio'),
+            ]
+    )
+
     return launch.LaunchDescription([
         nav_driver_launch,
         speech_to_audio,
         audio_to_text,
         text_to_directions,
         pose_sender,
-        trh_nav
+        trh_nav,
+        text_to_audio
     ])

@@ -21,8 +21,8 @@ class dirSender(Node):
             'text_poses',
             10
         )
-        self.prompt_history = [{"role": "system", "content": "You read text and output either 'table' or 'box' based on what location you think the input is directing you to."}]
-        self.coord_table = {"box": "6.5,0", "table": "3,-0.5"}
+        self.prompt_history = [{"role": "system", "content": "You read text and output either 'table' or 'box' or 'home' based on what location you think the input is directing you to."}]
+        self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
     def send_directions(self, msg):
         text = msg.data
         self.get_logger().info("Text recieved: {0}".format(text))
