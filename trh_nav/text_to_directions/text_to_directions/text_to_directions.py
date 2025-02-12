@@ -26,9 +26,37 @@ class dirSender(Node):
             'locations',
             10
         )
+        self.states = self.create_subscription(
+            String,
+            'states',
+            self.state_redirection,
+            10
+        )
+        self.autoTTS = self.create_publisher(
+            String,
+            'auto_tts',
+            10
+        )
         self.prompt_history = [{"role": "system", "content": "You read text and output either 'table' or 'box' or 'home' based on what location you think the input is directing you to."}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
-    
+
+    def state_redirection(self, msg):
+        state = msg.data.split(".")
+        match state[0]:
+            case "nav":
+                match state[1]:
+                    case "start":
+                        self.autoTTS.publish(String(data="Navigating to {0}.".format(state[2])))
+                    case "success":
+                        self.autoTTS.publish(String(data="You have arrived at {0}.".format(state[2])))
+                    case "fail":
+                        self.autoTTS.publish(String(data="Navigation to {0} has failed.".format(state[2])))
+                    case _:
+                        self.get_logger().info("Invalid state: {0}".format(msg.data))
+            case "talk":
+                pass
+            case _:
+                self.get_logger().info("Invalid state: {0}".format(msg.data))    
     def send_directions(self, msg):
         text = msg.data
         self.get_logger().info("Text recieved: {0}".format(text))
