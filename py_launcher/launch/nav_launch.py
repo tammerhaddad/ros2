@@ -67,6 +67,12 @@ def generate_launch_description():
             ]
     )
 
+    auto_tts = Node(
+        package = 'autoTTS',
+        executable = 'autoTTS',
+        name = 'auto_tts',
+    )
+
     return launch.LaunchDescription([
         nav_driver_launch,
         speech_to_audio,
@@ -74,5 +80,7 @@ def generate_launch_description():
         text_to_directions,
         pose_sender,
         trh_nav,
-        text_to_audio
+        text_to_audio,
+        audio_to_sound,
+        auto_tts
     ])

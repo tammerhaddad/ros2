@@ -3,6 +3,7 @@ from geometry_msgs.msg import PoseStamped
 from stretch_nav2.robot_navigator import BasicNavigator, TaskResult
 from rclpy.node import Node
 from rclpy.duration import Duration
+from std_msgs.msg import String
 
 class myNavigator(Node):
     def __init__(self):
@@ -17,15 +18,30 @@ class myNavigator(Node):
         self.initial_pose.pose.orientation.w = 1.0
         self.navigator.setInitialPose(self.initial_pose)
         self.navigator.waitUntilNav2Active()
-        self.subscription = self.create_subscription(
+        self.directions = self.create_subscription(
             PoseStamped,
             'poses',
             self.navigate,
             10)
-        
+        self.location = self.create_subscription(
+            String,
+            'locations',
+            self.setLoc,
+            10
+        )
+        self.publisher = self.create_publisher(
+            String,
+            'states',
+            10
+        )
+        self.path = []
+    
+    def setLoc(self, msg):
+        self.path.append(msg.data)
     def navigate(self, msg):
         pose = msg
         self.get_logger().info('Navigating to ({x}, {y})'.format(x=pose.pose.position.x, y=pose.pose.position.y))
+        self.pubState("start." + self.path[-1])
         nav_start = self.navigator.get_clock().now()
         pose.header.frame_id = 'map'
         pose.header.stamp = self.navigator.get_clock().now().to_msg()
@@ -48,13 +64,17 @@ class myNavigator(Node):
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             self.navigator.get_logger().info('Route complete! Restarting...')
-            # self.get_logger().info('Navigation complete!, returning home.')
-            # self.navigate(self.initial_pose)
+            self.pubState("success")
         elif result == TaskResult.CANCELED:
             self.navigator.get_logger().info('Security route was canceled, exiting.')
+            self.pubState("cancelled")
             rclpy.shutdown()
         elif result == TaskResult.FAILED:
             self.navigator.get_logger().info('Security route failed! Restarting from other side...')
+            self.pubState("failed")
+
+    def pubState(self, msg):
+        self.publisher.publish(String(data="nav." + msg))
 
 def main(args = None):
     rclpy.init(args=args)
