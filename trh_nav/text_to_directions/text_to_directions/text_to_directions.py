@@ -34,13 +34,14 @@ class dirSender(Node):
         )
         self.autoTTS = self.create_publisher(
             String,
-            'auto_tts',
+            'TTS_text',
             10
         )
-        self.prompt_history = [{"role": "system", "content": "You read text and output either 'table' or 'box' or 'home' based on what location you think the input is directing you to."}]
+        self.prompt_history = [{"role": "system", "content": "You read text and output either 'table' or 'box' or 'home' based on what location you think the input is directing you to. If it is not responding to a location, respond as a conversational agent."}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
 
     def state_redirection(self, msg):
+        self.get_logger().info("State recieved: {0}".format(msg.data))
         state = msg.data.split(".")
         match state[0]:
             case "nav":
@@ -63,9 +64,13 @@ class dirSender(Node):
         response = self.generate_text(text)
         self.get_logger().info("Recieved: {0}".format(response))
         self.sendLoc.publish(String(data=response))
-        coord = self.coord_table[response]
-        self.sendPose.publish(String(data=coord))
-        self.get_logger().info("Sending: ({0})".format(coord))
+        if response not in self.coord_table.keys():
+            self.autoTTS.publish(String(data=response))
+            self.get_logger().info("Responding to user: {0}".format(response))
+        else:
+            coord = self.coord_table[response]
+            self.sendPose.publish(String(data=coord))
+            self.get_logger().info("Sending: ({0})".format(coord))
     
     def generate_text(self, text):
         self.prompt_history.append({"role": "user", "content": text})
@@ -73,6 +78,7 @@ class dirSender(Node):
         chat_completion = client.chat.completions.create(
             messages=self.prompt_history,
             model='gpt-4',
+            response_format = {"type": "json_object"}
         )
         response = chat_completion.choices[0].message.content
         self.prompt_history.append({"role": "assistant", "content": chat_completion.choices[0].message.content})

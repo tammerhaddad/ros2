@@ -64,14 +64,14 @@ class myNavigator(Node):
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             self.navigator.get_logger().info('Route complete! Restarting...')
-            self.pubState("success")
+            self.pubState("success." + self.path[-1])
         elif result == TaskResult.CANCELED:
             self.navigator.get_logger().info('Security route was canceled, exiting.')
-            self.pubState("cancelled")
+            self.pubState("cancelled." + self.path[-1])
             rclpy.shutdown()
         elif result == TaskResult.FAILED:
             self.navigator.get_logger().info('Security route failed! Restarting from other side...')
-            self.pubState("failed")
+            self.pubState("failed." + self.path[-1])
 
     def pubState(self, msg):
         self.publisher.publish(String(data="nav." + msg))
