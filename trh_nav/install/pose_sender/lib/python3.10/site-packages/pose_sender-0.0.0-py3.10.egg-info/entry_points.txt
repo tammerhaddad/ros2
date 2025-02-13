@@ -1,3 +1,0 @@
-[console_scripts]
-send_pose = pose_sender.pose_sender:main
-

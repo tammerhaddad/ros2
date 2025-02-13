@@ -4,7 +4,7 @@ from openai import OpenAI
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from std_msgs.msg import String
-import time
+import json
 
 class dirSender(Node):
 
@@ -37,7 +37,7 @@ class dirSender(Node):
             'TTS_text',
             10
         )
-        self.prompt_history = [{"role": "system", "content": "You read text and output either 'table' or 'box' or 'home' based on what location you think the input is directing you to. If it is not responding to a location, respond as a conversational agent."}]
+        self.prompt_history = [{"role": "system", "content": "You are a navigational robot named Stretch. You will be guiding users to locations in a room, as well as conversing with them."}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
 
     def state_redirection(self, msg):
@@ -48,16 +48,20 @@ class dirSender(Node):
                 match state[1]:
                     case "start":
                         self.autoTTS.publish(String(data="Navigating to {0}.".format(state[2])))
+                        self.prompt_history = [{"role": "system", "content": "You have started navigating to {0}.".format(state[2])}]
                     case "success":
                         self.autoTTS.publish(String(data="You have arrived at {0}.".format(state[2])))
+                        self.prompt_history = [{"role": "system", "content": "You have arrived at {0}.".format(state[2])}]
                     case "fail":
                         self.autoTTS.publish(String(data="Navigation to {0} has failed.".format(state[2])))
+                        self.prompt_history = [{"role": "system", "content": "Navigation to {0} has failed.".format(state[2])}]
                     case _:
                         self.get_logger().info("Invalid state: {0}".format(msg.data))
             case "talk":
                 pass
             case _:
-                self.get_logger().info("Invalid state: {0}".format(msg.data))    
+                self.get_logger().info("Invalid state: {0}".format(msg.data))   
+         
     def send_directions(self, msg):
         text = msg.data
         self.get_logger().info("Text recieved: {0}".format(text))
@@ -74,14 +78,40 @@ class dirSender(Node):
     
     def generate_text(self, text):
         self.prompt_history.append({"role": "user", "content": text})
+
+        functions = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "process_response",
+                    "description": "Generate a JSON object for a robot response",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "response": {"type": "string", "description": "What the robot should say to the user"},
+                            "destination": {"type": "string", "description": "Where the user said the robot should go. Options: 'table', 'box', 'home'"},
+                        },
+                        "required": ["response", "destination"]
+                    }
+                }
+            }
+        ]
+
         client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         chat_completion = client.chat.completions.create(
             messages=self.prompt_history,
             model='gpt-4',
-            response_format = {"type": "json_object"}
+            tools=functions,
+            tool_choice="auto"
         )
-        response = chat_completion.choices[0].message.content
-        self.prompt_history.append({"role": "assistant", "content": chat_completion.choices[0].message.content})
+        response_message = chat_completion.choices[0].message
+        response = {}
+        if response_message.tool_calls:
+            function_args = response_message.tool_calls[0].function.arguments
+            response = json.loads(function_args)
+        self.prompt_history.append({"role": "assistant", "content": response["response"]})
+        if response["destination"] in ["table", "box", "home"]:
+            return response["destination"]
         return response
 
 def main(args = None):
