@@ -38,16 +38,43 @@ class dirSender(Node):
             'TTS_text',
             10
         )
-        # self._action_server = ActionServer(
-        #     self,
-        #     StringAction,
-        #     'dir_server',
-        #     self.execute_callback)
+        self._action_server = ActionServer(
+            self,
+            StringAction,
+            'dir_server',
+            self.execute_callback)
         
-        self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them. Your responses will be only in plain english"}]
+        self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them."}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
         self.get_logger().info('Init done.')
-    
+
+    def execute_callback(self, goal_handle):
+        self.get_logger().info('Executing goal...')
+        result = StringAction.Result()
+        feedback = StringAction.Feedback()
+        text = goal_handle.request.strrequest
+        response = self.generate_text(text)
+
+        self.feedback_helper(feedback, goal_handle, "Response: {0}".format(response))
+        self.auto_tts.publish(String(data=response.get("response")))
+        
+        self.sendLoc.publish(String(data=response.get("response")))
+        if response.get("destination") not in self.coord_table.keys():
+            self.auto_tts.publish(String(data=response.get("response")))
+            self.feedback_helper(feedback, goal_handle, "Responding to user: {0}".format(response.get("response")))
+        else:
+            coord = self.coord_table[response.get("destination")]
+            self.sendPose.publish(String(data=coord))
+            self.feedback_helper(feedback, goal_handle, "Sending: ({0})".format(coord))
+
+        result.strresult = response.get("response")
+        goal_handle.succeed()
+        return result
+        
+    def feedback_helper(self, feedback, goal_handle, text):
+        feedback.strfeedback = "Text recieved: {0}".format(text)
+        goal_handle.publish_feedback(feedback)
+
     def state_redirection(self, msg):
         self.get_logger().info("State recieved: {0}".format(msg.data))
         state = msg.data.split(".")
