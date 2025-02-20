@@ -68,8 +68,8 @@ def generate_launch_description():
     )
 
     auto_tts = Node(
-        package = 'autoTTS',
-        executable = 'autoTTS',
+        package = 'auto_tts',
+        executable = 'auto_tts',
         name = 'auto_tts',
     )
 

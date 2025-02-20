@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'autoTTS'
+package_name = 'auto_tts'
 
 setup(
     name=package_name,
@@ -19,7 +19,7 @@ setup(
     license='Apache-2.0',
     entry_points={
         'console_scripts': [
-            'autoTTS = autoTTS.autoTTS:main'
+            'auto_tts = auto_tts.auto_tts:main'
         ],
     },
 )

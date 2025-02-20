@@ -4,7 +4,7 @@ from rclpy.node import Node
 from audio_common_msgs.action import TTS
 from std_msgs.msg import String
 
-class AutoTTS(Node):
+class auto_tts(Node):
     def __init__(self):
         super().__init__('input_sender')
         self.subscription = self.create_subscription(
@@ -50,7 +50,7 @@ class AutoTTS(Node):
 
 def main(args = None):
     rclpy.init(args=args)
-    action_client = AutoTTS()
+    action_client = auto_tts()
     rclpy.spin(action_client)
 
 if __name__ == '__main__':
