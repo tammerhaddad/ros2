@@ -38,43 +38,16 @@ class dirSender(Node):
             'TTS_text',
             10
         )
-        self._action_server = ActionServer(
-            self,
-            StringAction,
-            'dir_server',
-            self.execute_callback)
+        # self._action_server = ActionServer(
+        #     self,
+        #     StringAction,
+        #     'dir_server',
+        #     self.execute_callback)
         
-        self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them."}]
+        self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them. Your responses will be only in plain english"}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
         self.get_logger().info('Init done.')
-
-    def execute_callback(self, goal_handle):
-        self.get_logger().info('Executing goal...')
-        result = StringAction.Result()
-        feedback = StringAction.Feedback()
-        text = goal_handle.request.strrequest
-        self.feedback_helper(feedback, goal_handle, "Text recieved: {0}".format(text))
-        response = self.generate_text(text)
-        self.get_logger().info('Response checker: {0}'.format(response))
-        self.feedback_helper(feedback, goal_handle, "Response: {0}".format(response))
-        
-        self.sendLoc.publish(String(data=response))
-        if response not in self.coord_table.keys():
-            self.auto_tts.publish(String(data=response))
-            self.feedback_helper(feedback, goal_handle, "Responding to user: {0}".format(response))
-        else:
-            coord = self.coord_table[response]
-            self.sendPose.publish(String(data=coord))
-            self.feedback_helper(feedback, goal_handle, "Sending: ({0})".format(coord))
-
-        result.strresult = response
-        goal_handle.succeed()
-        return result
     
-    def feedback_helper(self, feedback, goal_handle, text):
-        feedback.strfeedback = "Text recieved: {0}".format(text)
-        goal_handle.publish_feedback(feedback)
-
     def state_redirection(self, msg):
         self.get_logger().info("State recieved: {0}".format(msg.data))
         state = msg.data.split(".")
@@ -89,7 +62,8 @@ class dirSender(Node):
                         self.prompt_history.append({"role": "system", "content": "You have arrived at {0}.".format(state[2])})
                     case "fail":
                         self.auto_tts.publish(String(data="Navigation to {0} has failed.".format(state[2])))
-                        self.prompt_history.append({"role": "system", "content": "Navigation to {0} has failed.".format(state[2])})
+                        self.autoTTS.publish(String(data="Navigating to {0}.".format(state[2])))
+                        self.prompt_history.append({"role": "system", "content": "You have started navigating to {0}.".format(state[2])})
                     case _:
                         self.get_logger().info("Invalid state: {0}".format(msg.data))
             case "talk":
@@ -101,13 +75,14 @@ class dirSender(Node):
         text = msg.data
         self.get_logger().info("Text recieved: {0}".format(text))
         response = self.generate_text(text)
-        self.get_logger().info("Recieved: {0}".format(response))
-        self.sendLoc.publish(String(data=response))
-        if response not in self.coord_table.keys():
-            self.auto_tts.publish(String(data=response))
-            self.get_logger().info("Responding to user: {0}".format(response))
-        else:
-            coord = self.coord_table[response]
+        
+        # if response.get("response") == String:
+        self.get_logger().info("Speaking: {0}".format(response.get("response")))
+        self.autoTTS.publish(String(data=response.get("response")))
+        # if response.get("destination") == String:
+        if response.get("destination") in ["table", "box", "home"]:
+            self.sendLoc.publish(String(data=response.get("destination")))
+            coord = self.coord_table[response.get("destination")]
             self.sendPose.publish(String(data=coord))
             self.get_logger().info("Sending: ({0})".format(coord))
     
@@ -119,12 +94,12 @@ class dirSender(Node):
                 "type": "function",
                 "function": {
                     "name": "process_response",
-                    "description": "Generate a JSON object for a response",
+                    "description": "Generate a JSON object for an assistants response",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "response": {"type": "string", "description": "What you should say to the user"},
-                            "destination": {"type": "string", "description": "Where the user said you should go. Options: 'table', 'box', 'home'. if No destination is specified, respond 'other'"},
+                            "response": {"type": "string", "description": "What the assistant should say to the user"},
+                            "destination": {"type": "string", "description": "Where the user said the assistant should go. Options: 'table', 'box', 'home'. If the user is not explicitly asking for directions or telling you to go somewhere, just respond with 'other'"},
                         },
                         "required": ["response", "destination"]
                     }
@@ -133,29 +108,19 @@ class dirSender(Node):
         ]
 
         client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        self.get_logger().info("Prompt history: {0}".format(self.prompt_history))
         chat_completion = client.chat.completions.create(
             messages=self.prompt_history,
-            model='gpt-4',
+            model='gpt-4o-mini',
             tools=functions,
-            tool_choice="auto"
+            tool_choice="required"
         )
         response_message = chat_completion.choices[0].message
         response = {}
         if response_message.tool_calls:
             function_args = response_message.tool_calls[0].function.arguments
             response = json.loads(function_args)
-        if response is not None and "response" in response.keys():
-            # self.get_logger().info(response)
-            self.prompt_history.append({"role": "assistant", "content": str(response["response"])})
-            if response["destination"] in ["table", "box", "home"]:
-                return response["destination"]
-            return response
-        else: 
-            self.get_logger().info("Invalid response: {0}".format(response))
-            res = "I'm sorry, I don't understand. Could you please rephrase that?"
-            self.prompt_history.append({"role": "assistant", "content": str(res)})
-            return res
+        self.prompt_history.append({"role": "assistant", "content": response.get("response")})
+        return response
 
 def main(args = None):
     rclpy.init(args=args)
