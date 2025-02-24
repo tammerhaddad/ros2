@@ -21,6 +21,9 @@ endif()
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/StringAction.action"
   "action/Numba.action"
+  "action/SendCoord.action"
+  "action/Directions.action"
+  "msg/Coord.msg"
   DEPENDENCIES builtin_interfaces
 )
 

@@ -4,6 +4,10 @@ from stretch_nav2.robot_navigator import BasicNavigator, TaskResult
 from rclpy.node import Node
 from rclpy.duration import Duration
 from std_msgs.msg import String
+from trh_msgs.action import SendCoord
+from trh_msgs.action import Directions
+from rclpy.action import ActionServer
+import queue
 
 class myNavigator(Node):
     def __init__(self):
@@ -18,34 +22,88 @@ class myNavigator(Node):
         self.initial_pose.pose.orientation.w = 1.0
         self.navigator.setInitialPose(self.initial_pose)
         self.navigator.waitUntilNav2Active()
-        self.directions = self.create_subscription(
-            PoseStamped,
-            'poses',
-            self.navigate,
-            10)
-        self.location = self.create_subscription(
-            String,
-            'locations',
-            self.setLoc,
-            10
-        )
-        self.publisher = self.create_publisher(
-            String,
-            'states',
-            10
-        )
-        self.path = []
+
+        self._coord_adder = ActionServer(
+            self,
+            SendCoord,
+            'add_coord',
+            self.add_coord)
+        self._self_navigator = ActionServer(
+            self,
+            Directions,
+            'nav_action',
+            self.nav_action)
+        
+        self.get_logger().info('Init done.')
+        self.path = queue.Queue()
+
+
+    def reset_pose(self):
+        self.navigator.setInitialPose(self.initial_pose)
+        self.navigator.waitUntilNav2Active()
+        self.get_logger().info('Initial Pose set to (0,0).')
+
+    def add_coord(self, goal_handle):
+        self.get_logger().info('Adding Coord...')
+        result = SendCoord.Result()
+        feedback = SendCoord.Feedback()
+        coord = goal_handle.request.coord
+        pose = PoseStamped()
+        pose.header.frame_id = 'map'
+        pose.pose.position.x = float(coord.x)
+        pose.pose.position.y = float(coord.y)
+        pose.pose.orientation.z = 0.0
+        pose.pose.orientation.w = 1.0
+        self.path.put(pose)
+        self.get_logger().info(f'Added coordinate ({coord.x}, {coord.y})')
+        feedback.coord_list = self.path
+        goal_handle.publish_feedback(feedback)
+        result.result = 0
+        goal_handle.succeed()
+        return result
     
-    def setLoc(self, msg):
-        self.path.append(msg.data)
-    def navigate(self, msg):
-        pose = msg
-        self.get_logger().info('Navigating to ({x}, {y})'.format(x=pose.pose.position.x, y=pose.pose.position.y))
-        self.pubState("start." + self.path[-1])
+    def nav_action(self, goal_handle):
+        self.get_logger().info('Executing navigation...')
+        num_poses = goal_handle.request.points
+        result = Directions.Result()
+        feedback = Directions.Feedback()
+        if num_poses < 1:
+            self.get_logger().info('Resetting.')
+            result.result = "Reset."
+            feedback.feedback = "Reset."
+            goal_handle.publish_feedback(feedback)
+            goal_handle.succeed()
+            self.reset_pose()
+            return result
+        
+        poses = [self.path.get() for _ in range(num_poses)]
+        results = []
+        for pose in poses:
+            feedback.feedback = f'Navigating to ({pose.pose.position.x}, {pose.pose.position.y})'
+            goal_handle.publish_feedback(feedback)
+            results.append(self.navigate(pose, feedback))
+
+        feedback.feedback = "Results: " + str(results)
+        goal_handle.publish_feedback(feedback)
+        
+        results = ""
+        for i, res in enumerate(results):
+            if res == 0:
+                results += f"{poses[i].pose.position.x}, {poses[i].pose.position.y} succeeded.\n"
+            elif res == 1:
+                results += f"{poses[i].pose.position.x}, {poses[i].pose.position.y} canceled.\n"
+            elif res == 2:
+                results += f"{poses[i].pose.position.x}, {poses[i].pose.position.y} failed.\n"
+        
+        result.result = results
+        goal_handle.succeed()
+        return result
+    
+    def navigate(self, pose, goal_handle):
+        goal_feedback = Directions.Feedback()
         nav_start = self.navigator.get_clock().now()
         pose.header.frame_id = 'map'
         pose.header.stamp = self.navigator.get_clock().now().to_msg()
-        pose.pose.orientation.w = 1.0
         route_poses = [pose]
         self.navigator.followWaypoints(route_poses)
         i=0
@@ -53,8 +111,10 @@ class myNavigator(Node):
             i += 1
             feedback = self.navigator.getFeedback()
             if feedback and i % 5 == 0:
-                self.navigator.get_logger().info('Executing current waypoint: (' +
-                    str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ").")
+                # self.navigator.get_logger().info('Executing current waypoint: (' +
+                #     str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ").")
+                goal_feedback.feedback = f'Executing current waypoint: ({pose.pose.position.x}, {pose.pose.position.y}).'
+                goal_handle.publish_feedback(goal_feedback)
                 now = self.navigator.get_clock().now()
   
                 # Some navigation timeout to demo cancellation
@@ -63,18 +123,17 @@ class myNavigator(Node):
 
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
-            self.navigator.get_logger().info('Route complete! Restarting...')
-            self.pubState("success." + self.path[-1])
+            goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") succeeded."
+            goal_handle.publish_feedback(goal_feedback)
+            return 0
         elif result == TaskResult.CANCELED:
-            self.navigator.get_logger().info('Security route was canceled, exiting.')
-            self.pubState("cancelled." + self.path[-1])
-            rclpy.shutdown()
+            goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") canceled."
+            goal_handle.publish_feedback(goal_feedback)
+            return 1
         elif result == TaskResult.FAILED:
-            self.navigator.get_logger().info('Security route failed! Restarting from other side...')
-            self.pubState("failed." + self.path[-1])
-
-    def pubState(self, msg):
-        self.publisher.publish(String(data="nav." + msg))
+            goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") failed."
+            goal_handle.publish_feedback(goal_feedback)
+            return 2
 
 def main(args = None):
     rclpy.init(args=args)
