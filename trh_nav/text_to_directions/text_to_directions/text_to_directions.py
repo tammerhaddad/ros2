@@ -52,9 +52,8 @@ class dirSender(Node):
         self.add_dir_client = ActionClient(
             self,
             SendCoord,
-            "add_coord",
-            10
-        )
+            "add_coord"
+            )
         
         self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them."}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
@@ -77,12 +76,12 @@ class dirSender(Node):
         else:
             coord = self.coord_table[response.get("destination")]
             # self.sendPose.publish(String(data=coord))
-            self.feedback_helper(feedback, goal_handle, "Sending: ({0})".format(coord))
-
+            coord = coord.split(",")
             coord_to_send = SendCoord.Goal()
-            coord_to_send.x = coord[0]
-            coord_to_send.y = coord[1]
-            self.client.wait_for_server()
+            coord_to_send.x = float(coord[0])
+            coord_to_send.y = float(coord[1])
+            feedback.strfeedback = f"Sending: ({coord_to_send.x}, {coord_to_send.y})"
+            self.add_dir_client.wait_for_server()
             self._send_goal_future = self.add_dir_client.send_goal_async(
                 coord_to_send, feedback_callback=self.feedback_callback)
             self._send_goal_future.add_done_callback(self.goal_response_callback)

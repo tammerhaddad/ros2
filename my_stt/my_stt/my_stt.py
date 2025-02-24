@@ -33,6 +33,7 @@ class SpeechToText(Node):
             depth=10
         )
 
+        self.listening = False
         self.subscription = self.create_subscription(
             AudioStamped,
             'input_audio',
@@ -65,6 +66,9 @@ class SpeechToText(Node):
         self.get_logger().info('\nInit done.\n')
 
     def listener_callback(self, audio: AudioStamped):
+        if not self.listening:
+            return
+        
         audio_data = np.frombuffer(audio.audio.audio_data.int16_data, dtype=np.int16)
         if len(audio_data) > 0:
             volume = np.linalg.norm(audio_data) / len(audio_data)
@@ -95,6 +99,7 @@ class SpeechToText(Node):
                 milliseconds = int((time.time() % 1) * 1000)
                 self.publisher2.publish(String(data='[{time}:{milliseconds}]: Audio off, processing.'.format(time=current_time, milliseconds=milliseconds)))
                 # self.process_audio_chunk(self.accumulated_data)
+                self.listening = False
                 self.process_audio_chunk(self.accumulated_data)
                 self.accumulated_data = bytearray()
                 self.silence_start_time = None
