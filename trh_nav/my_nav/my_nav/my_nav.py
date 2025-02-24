@@ -47,15 +47,16 @@ class myNavigator(Node):
         self.get_logger().info('Adding Coord...')
         result = SendCoord.Result()
         feedback = SendCoord.Feedback()
-        coord = goal_handle.request.coord
+        coordx = goal_handle.request.x
+        coordy = goal_handle.request.y
         pose = PoseStamped()
         pose.header.frame_id = 'map'
-        pose.pose.position.x = float(coord.x)
-        pose.pose.position.y = float(coord.y)
+        pose.pose.position.x = float(coordx)
+        pose.pose.position.y = float(coordy)
         pose.pose.orientation.z = 0.0
         pose.pose.orientation.w = 1.0
         self.path.put(pose)
-        self.get_logger().info(f'Added coordinate ({coord.x}, {coord.y})')
+        self.get_logger().info(f'Added coordinate ({coordx}, {coordy})')
         feedback.coord_list = self.path
         goal_handle.publish_feedback(feedback)
         result.result = 0

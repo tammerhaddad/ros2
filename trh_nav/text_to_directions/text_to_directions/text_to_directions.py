@@ -5,6 +5,11 @@ from rclpy.action import ActionServer
 from rclpy.node import Node
 from std_msgs.msg import String
 from trh_msgs.action import StringAction
+from trh_msgs.action import Directions
+from trh_msgs.action import SendCoord
+from trh_msgs.msg import Coord
+from rclpy.action import ActionClient
+
 import json
 
 class dirSender(Node):
@@ -44,6 +49,13 @@ class dirSender(Node):
             'dir_server',
             self.execute_callback)
         
+        self.add_dir_client = ActionClient(
+            self,
+            SendCoord,
+            "add_coord",
+            10
+        )
+        
         self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them."}]
         self.coord_table = {"box": "6.5,0", "table": "1.2,0.5", "home": "0,0"}
         self.get_logger().info('Init done.')
@@ -64,12 +76,40 @@ class dirSender(Node):
             self.feedback_helper(feedback, goal_handle, "Responding to user: {0}".format(response.get("response")))
         else:
             coord = self.coord_table[response.get("destination")]
-            self.sendPose.publish(String(data=coord))
+            # self.sendPose.publish(String(data=coord))
             self.feedback_helper(feedback, goal_handle, "Sending: ({0})".format(coord))
+
+            coord_to_send = SendCoord.Goal()
+            coord_to_send.x = coord[0]
+            coord_to_send.y = coord[1]
+            self.client.wait_for_server()
+            self._send_goal_future = self.add_dir_client.send_goal_async(
+                coord_to_send, feedback_callback=self.feedback_callback)
+            self._send_goal_future.add_done_callback(self.goal_response_callback)
 
         result.strresult = response.get("response")
         goal_handle.succeed()
         return result
+    
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().info('Goal rejected :(')
+            return
+
+        self.get_logger().info('Goal accepted :)')
+
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.get_result_callback)
+
+    def get_result_callback(self, future):
+        result = future.result().result
+        self.get_logger().info('Result: {0}'.format(result.strresult))
+        rclpy.shutdown()
+
+    def feedback_callback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        self.get_logger().info('Feedback: {0}'.format(feedback.strfeedback))
         
     def feedback_helper(self, feedback, goal_handle, text):
         feedback.strfeedback = "Text recieved: {0}".format(text)
