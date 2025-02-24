@@ -89,7 +89,7 @@ class dirSender(Node):
                         self.prompt_history.append({"role": "system", "content": "You have arrived at {0}.".format(state[2])})
                     case "fail":
                         self.auto_tts.publish(String(data="Navigation to {0} has failed.".format(state[2])))
-                        self.autoTTS.publish(String(data="Navigating to {0}.".format(state[2])))
+                        self.auto_tts.publish(String(data="Navigating to {0}.".format(state[2])))
                         self.prompt_history.append({"role": "system", "content": "You have started navigating to {0}.".format(state[2])})
                     case _:
                         self.get_logger().info("Invalid state: {0}".format(msg.data))
@@ -105,7 +105,7 @@ class dirSender(Node):
         
         # if response.get("response") == String:
         self.get_logger().info("Speaking: {0}".format(response.get("response")))
-        self.autoTTS.publish(String(data=response.get("response")))
+        self.auto_tts.publish(String(data=response.get("response")))
         # if response.get("destination") == String:
         if response.get("destination") in ["table", "box", "home"]:
             self.sendLoc.publish(String(data=response.get("destination")))
