@@ -22,7 +22,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from audio_common_msgs.msg import AudioStamped
 from std_msgs.msg import String
-
+from trh_msgs.msg import Num
 
 class SpeechToText(Node):
 
@@ -33,12 +33,18 @@ class SpeechToText(Node):
             depth=10
         )
 
-        self.listening = False
+        self.listening = True
         self.subscription = self.create_subscription(
             AudioStamped,
             'input_audio',
             self.listener_callback,
             qos_profile)
+        self.toggle = self.create_subscription(
+            Num,
+            'yappin',
+            self.toggle_callback,
+            10)
+
         self.publisher = self.create_publisher(
             String,
             'input_text',
@@ -64,6 +70,12 @@ class SpeechToText(Node):
 
         self.model = whisper.load_model(self.get_parameter('interpreter').get_parameter_value().string_value)
         self.get_logger().info('\nInit done.\n')
+
+    def toggle_callback(self, msg: Num):
+        if msg.num == 1:
+            self.listening = True
+        elif msg.num == 0:
+            self.listening = False
 
     def listener_callback(self, audio: AudioStamped):
         if not self.listening:
@@ -106,7 +118,6 @@ class SpeechToText(Node):
     
     def set_background_noise_level(self, audio: AudioStamped):
         audio_data = np.frombuffer(audio.audio.audio_data.int16_data, dtype=np.int16)
-
         if self.silence_start_time is None:
             self.get_logger().info('Calibrating... (shut up)')
             self.silence_start_time = time.time()
@@ -127,6 +138,7 @@ class SpeechToText(Node):
 
 
     def process_audio_chunk(self, audio_chunk):
+        self.listening = False
         audio_data = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32) / 32768.0
         result = self.model.transcribe(audio_data, fp16=False)
         text = result['text']
@@ -145,6 +157,7 @@ class SpeechToText(Node):
             self.publisher.publish(String(data=text))
         else: 
             self.get_logger().info('No text recognized, not publishing')
+        self.listening = True
 
 def main(args=None):
     rclpy.init(args=args)

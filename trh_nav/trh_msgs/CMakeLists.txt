@@ -24,6 +24,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/SendCoord.action"
   "action/Directions.action"
   "msg/Coord.msg"
+  "msg/Num.msg"
   DEPENDENCIES builtin_interfaces
 )
 

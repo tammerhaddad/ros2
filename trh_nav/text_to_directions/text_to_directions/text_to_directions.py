@@ -79,7 +79,7 @@ class dirSender(Node):
             coord = coord.split(",")
             coord_to_send = SendCoord.Goal()
             coord_to_send.x = float(coord[0])
-            coord_to_send.y = float(coord[1])
+            coord_to_send.y = float(coord[1])d
             feedback.strfeedback = f"Sending: ({coord_to_send.x}, {coord_to_send.y})"
             self.add_dir_client.wait_for_server()
             self._send_goal_future = self.add_dir_client.send_goal_async(
@@ -104,7 +104,7 @@ class dirSender(Node):
     def get_result_callback(self, future):
         result = future.result().result
         self.get_logger().info('Result: {0}'.format(result.strresult))
-        rclpy.shutdown()
+        # rclpy.shutdown()
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
