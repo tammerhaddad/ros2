@@ -70,6 +70,7 @@ class SpeechToText(Node):
 
         self.model = whisper.load_model(self.get_parameter('interpreter').get_parameter_value().string_value)
         self.get_logger().info('\nInit done.\n')
+        self.text_history = []
 
     def toggle_callback(self, msg: Num):
         if msg.num == 1:
@@ -155,6 +156,7 @@ class SpeechToText(Node):
 
         if len(text) > 0:
             self.publisher.publish(String(data=text))
+            self.text_history.append(text)
         else: 
             self.get_logger().info('No text recognized, not publishing')
         self.listening = True
