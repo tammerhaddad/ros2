@@ -13,15 +13,15 @@ class NavHub(Node):
 	def __init__(self):
 		super().__init__('nav_hub')
 		self.stt_client = ActionClient(self, ListReq, 'stt')
-		# nav_driver_launch,
-		# speech_to_audio,
-		# audio_to_text,
+		self.tts_client = ActionClient(self, self, StringAction, 'TTS_action')
+		self.toggle_listen_client = ActionClient(self, Num, 'listen_toggle')
+		self.dir_client = ActionClient(self, Directions, 'dir_server')
 		# text_to_directions,
 		# # pose_sender,
 		# trh_nav,
 		# text_to_audio,
 		# audio_to_sound,
-		# auto_tts
+		# auto_tts 
 
 	def stt_goal(self, request):
 		goal_msg = ListReq.Goal()

@@ -79,7 +79,7 @@ class dirSender(Node):
             coord = coord.split(",")
             coord_to_send = SendCoord.Goal()
             coord_to_send.x = float(coord[0])
-            coord_to_send.y = float(coord[1])d
+            coord_to_send.y = float(coord[1])
             feedback.strfeedback = f"Sending: ({coord_to_send.x}, {coord_to_send.y})"
             self.add_dir_client.wait_for_server()
             self._send_goal_future = self.add_dir_client.send_goal_async(

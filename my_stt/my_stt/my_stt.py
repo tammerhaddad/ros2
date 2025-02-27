@@ -23,6 +23,7 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy
 from audio_common_msgs.msg import AudioStamped
 from std_msgs.msg import String
 from trh_msgs.msg import Num
+from rclpy.action import ActionServer
 
 class SpeechToText(Node):
 
@@ -44,7 +45,8 @@ class SpeechToText(Node):
             'yappin',
             self.toggle_callback,
             10)
-
+        
+        self.toggle_server = ActionServer(self, Num, 'listen_toggle', self.server_toggle_callback)
         self.publisher = self.create_publisher(
             String,
             'input_text',
@@ -71,6 +73,14 @@ class SpeechToText(Node):
         self.model = whisper.load_model(self.get_parameter('interpreter').get_parameter_value().string_value)
         self.get_logger().info('\nInit done.\n')
         self.text_history = []
+
+    def server_toggle_callback(self, goal_handle):
+        self.get_logger().info('Toggling listening...')
+        num = Num()
+        num.num = 1 if goal_handle.request.num == 0 else 0
+        self.toggle_callback(num)
+        goal_handle.succeed()
+        return Num()
 
     def toggle_callback(self, msg: Num):
         if msg.num == 1:
