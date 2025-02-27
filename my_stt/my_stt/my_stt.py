@@ -24,6 +24,7 @@ from audio_common_msgs.msg import AudioStamped
 from std_msgs.msg import String
 from trh_msgs.msg import Num
 from rclpy.action import ActionServer
+from trh_msgs.action import Numba
 
 class SpeechToText(Node):
 
@@ -46,7 +47,7 @@ class SpeechToText(Node):
             self.toggle_callback,
             10)
         
-        self.toggle_server = ActionServer(self, Num, 'listen_toggle', self.server_toggle_callback)
+        self.toggle_server = ActionServer(self, Numba, 'listen_toggle', self.server_toggle_callback)
         self.publisher = self.create_publisher(
             String,
             'input_text',
@@ -65,22 +66,25 @@ class SpeechToText(Node):
 
         self.declare_parameter('silence_duration', 1)  # seconds
         self.declare_parameter('calibration_duration', 3)  # seconds
-        self.declare_parameter('interpreter', 'base'), # base, small
+        self.declare_parameter('interpreter', 'small'), # base, small
 
         self.silence_duration = self.get_parameter('silence_duration').get_parameter_value().integer_value
         self.calibration_duration = self.get_parameter('calibration_duration').get_parameter_value().integer_value
 
         self.model = whisper.load_model(self.get_parameter('interpreter').get_parameter_value().string_value)
+        
         self.get_logger().info('\nInit done.\n')
         self.text_history = []
 
     def server_toggle_callback(self, goal_handle):
         self.get_logger().info('Toggling listening...')
-        num = Num()
-        num.num = 1 if goal_handle.request.num == 0 else 0
-        self.toggle_callback(num)
+        message = Num()
+        result = Numba.Result()
+        message.num = 1 if goal_handle.request.numrequest == 0 else 0
+        result.numresult = message.num
+        self.toggle_callback(message)
         goal_handle.succeed()
-        return Num()
+        return result
 
     def toggle_callback(self, msg: Num):
         if msg.num == 1:
@@ -120,12 +124,13 @@ class SpeechToText(Node):
                 self.is_accumulating = False
                 current_time = time.strftime('%H:%M:%S', time.localtime())
                 milliseconds = int((time.time() % 1) * 1000)
-                self.publisher2.publish(String(data='[{time}:{milliseconds}]: Audio off, processing.'.format(time=current_time, milliseconds=milliseconds)))
+                self.get_logger().info('[{time}:{milliseconds}]: Audio off, processing.'.format(time=current_time, milliseconds=milliseconds))
                 # self.process_audio_chunk(self.accumulated_data)
                 self.listening = False
                 self.process_audio_chunk(self.accumulated_data)
                 self.accumulated_data = bytearray()
                 self.silence_start_time = None
+        self.listening = True
     
     def set_background_noise_level(self, audio: AudioStamped):
         audio_data = np.frombuffer(audio.audio.audio_data.int16_data, dtype=np.int16)
@@ -151,7 +156,7 @@ class SpeechToText(Node):
     def process_audio_chunk(self, audio_chunk):
         self.listening = False
         audio_data = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32) / 32768.0
-        result = self.model.transcribe(audio_data, fp16=False)
+        result = self.model.transcribe(audio_data, fp16=False, language="en")
         text = result['text']
         current_time = time.strftime('%H:%M:%S', time.localtime())
         milliseconds = int((time.time() % 1) * 1000)
@@ -169,14 +174,13 @@ class SpeechToText(Node):
             self.text_history.append(text)
         else: 
             self.get_logger().info('No text recognized, not publishing')
-        self.listening = True
 
 def main(args=None):
     rclpy.init(args=args)
     stt = SpeechToText()
     rclpy.spin(stt)
-    stt.destroy_node()
-    rclpy.shutdown()
+    # stt.destroy_node()
+    # rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

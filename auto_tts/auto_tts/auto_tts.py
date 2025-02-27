@@ -27,12 +27,16 @@ class auto_tts(Node):
         )
         self._action_client = ActionClient(self, TTS, 'say')
         self.get_logger().info("Init done.")
+        self.timer = self.create_timer(0.1, self.update_timer)
+        self.num = Num()
+        self.num.num = 1
+
+    def update_timer(self):
+        self.publisher.publish(self.num)
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
-        num = Num()
-        num.num = 0
-        self.publisher.publish(num)
+        self.num.num = 0
         result = StringAction.Result()
         feedback = StringAction.Feedback()
         msg = TTS
@@ -45,6 +49,7 @@ class auto_tts(Node):
         return result
 
     def send_goal(self, msg):
+        self.num.num = 0
         goal_msg = TTS.Goal()
         goal_msg.text = str(msg.data)
         
@@ -71,9 +76,7 @@ class auto_tts(Node):
     def get_result_callback(self, future):
         result = future.result().result
         self.get_logger().info('Result: {0}'.format(result.text))
-        msg = Num()
-        msg.num = 1
-        self.publisher.publish(msg)
+        self.num.num = 1
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
