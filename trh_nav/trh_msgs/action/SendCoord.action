@@ -3,4 +3,4 @@ float64 y
 ---
 int32 result
 ---
-Coord[] coord_list
+string[] coord_list

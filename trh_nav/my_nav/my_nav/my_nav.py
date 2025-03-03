@@ -35,7 +35,8 @@ class myNavigator(Node):
             self.nav_action)
         
         self.get_logger().info('Init done.')
-        self.path = queue.Queue()
+        self.path = []
+        self.english_path = []
 
 
     def reset_pose(self):
@@ -55,9 +56,10 @@ class myNavigator(Node):
         pose.pose.position.y = float(coordy)
         pose.pose.orientation.z = 0.0
         pose.pose.orientation.w = 1.0
-        self.path.put(pose)
+        self.path.append(pose)
+        self.english_path.append(f'({coordx}, {coordy})')
         self.get_logger().info(f'Added coordinate ({coordx}, {coordy})')
-        feedback.coord_list = self.path
+        feedback.coord_list = self.english_path
         goal_handle.publish_feedback(feedback)
         result.result = 0
         goal_handle.succeed()
@@ -66,6 +68,13 @@ class myNavigator(Node):
     def nav_action(self, goal_handle):
         self.get_logger().info('Executing navigation...')
         num_poses = goal_handle.request.points
+        result = Directions.Result()
+        if num_poses > len(self.path):
+            self.get_logger().info("Cannot navigate: no destinations in path")
+            result.result = "Failed."
+            goal_handle.succeed()
+            return result
+
         result = Directions.Result()
         feedback = Directions.Feedback()
         if num_poses < 1:
@@ -77,7 +86,9 @@ class myNavigator(Node):
             self.reset_pose()
             return result
         
-        poses = [self.path.get() for _ in range(num_poses)]
+        poses = []
+        for _ in range(num_poses):
+            poses.append(self.path.pop(0))
         results = []
         for pose in poses:
             feedback.feedback = f'Navigating to ({pose.pose.position.x}, {pose.pose.position.y})'
@@ -101,7 +112,7 @@ class myNavigator(Node):
         return result
     
     def navigate(self, pose, goal_handle):
-        goal_feedback = Directions.Feedback()
+        # goal_feedback = BasicNavigator.Feedback()
         nav_start = self.navigator.get_clock().now()
         pose.header.frame_id = 'map'
         pose.header.stamp = self.navigator.get_clock().now().to_msg()
@@ -114,8 +125,8 @@ class myNavigator(Node):
             if feedback and i % 5 == 0:
                 # self.navigator.get_logger().info('Executing current waypoint: (' +
                 #     str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ").")
-                goal_feedback.feedback = f'Executing current waypoint: ({pose.pose.position.x}, {pose.pose.position.y}).'
-                goal_handle.publish_feedback(goal_feedback)
+                # goal_feedback.feedback = f'Executing current waypoint: ({pose.pose.position.x}, {pose.pose.position.y}).'
+                # goal_handle.publish_feedback(goal_feedback)
                 now = self.navigator.get_clock().now()
   
                 # Some navigation timeout to demo cancellation
@@ -124,16 +135,16 @@ class myNavigator(Node):
 
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
-            goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") succeeded."
-            goal_handle.publish_feedback(goal_feedback)
+            # goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") succeeded."
+            # goal_handle.publish_feedback(goal_feedback)
             return 0
         elif result == TaskResult.CANCELED:
-            goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") canceled."
-            goal_handle.publish_feedback(goal_feedback)
+            # goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") canceled."
+            # goal_handle.publish_feedback(goal_feedback)
             return 1
         elif result == TaskResult.FAILED:
-            goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") failed."
-            goal_handle.publish_feedback(goal_feedback)
+            # goal_feedback.feedback = 'Navigation to (' + str(pose.pose.position.x) + ", " + str(pose.pose.position.y) + ") failed."
+            # goal_handle.publish_feedback(goal_feedback)
             return 2
 
 def main(args = None):
