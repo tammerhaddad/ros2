@@ -23,10 +23,16 @@ class RobotControlServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
-        nums = goal_handle.request.strrequest.split("-")
         result = StringAction.Result()
         feedback = StringAction.Feedback()
-        feedback.strfeedback = ""
+        nums = goal_handle.request.strrequest.split("-")
+        tilt = float(nums[0])
+        pan = float(nums[1])
+
+        feedback.strfeedback = "Recieved: tilt {tilt}, pan {pan}. Moving head..."
+        goal_handle.publish_feedback(feedback)
+        self.move_head(tilt, pan)
+        feedback.strfeedback = "Head moved to tilt {tilt}, pan {pan}."
         goal_handle.publish_feedback(feedback)
         result.strresult = "Done: tilt {tilt}, pan {pan}"
         goal_handle.succeed()
