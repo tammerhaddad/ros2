@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'trh_srv = trh_srvcli.trh_srv:main',
             'trh_cli = trh_srvcli.trh_cli:main',
+            'test_srv = trh_srvcli.test_srv:main',
         ],
     },
 )

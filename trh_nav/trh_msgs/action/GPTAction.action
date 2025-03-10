@@ -1,0 +1,6 @@
+string user_input
+---
+string response
+string goal
+---
+string feedback

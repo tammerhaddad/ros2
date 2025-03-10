@@ -16,7 +16,6 @@
 import time
 import numpy as np
 import whisper
-import openai
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
@@ -25,6 +24,11 @@ from std_msgs.msg import String
 from trh_msgs.msg import Num
 from rclpy.action import ActionServer
 from trh_msgs.action import Numba
+from trh_msgs.action import StringAction
+
+from threading import Event
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 
 class SpeechToText(Node):
 
@@ -34,28 +38,17 @@ class SpeechToText(Node):
             reliability=ReliabilityPolicy.BEST_EFFORT,  # Ensure reliability
             depth=10
         )
-
-        self.listening = True
+        self.listening = False
         self.subscription = self.create_subscription(
             AudioStamped,
             'input_audio',
             self.listener_callback,
             qos_profile)
-        self.toggle = self.create_subscription(
-            Num,
-            'yappin',
-            self.toggle_callback,
-            10)
-        
+        self.toggle = self.create_subscription(Num, 'yappin', self.toggle_callback, 10)
         self.toggle_server = ActionServer(self, Numba, 'listen_toggle', self.server_toggle_callback)
-        self.publisher = self.create_publisher(
-            String,
-            'input_text',
-            10)
-        
+        self.publisher = self.create_publisher(String, 'input_text', 10)
         self.publisher2 = self.create_publisher(String, 'times', 10)
         self.publisher3 = self.create_publisher(String, 'volume', 10)
-        
         self.accumulated_data = bytearray()
         self.is_accumulating = False
         self.volume_threshold = -1
@@ -63,18 +56,37 @@ class SpeechToText(Node):
         self.silence_start_time = None
         self.node_start_time = time.time()
         self.calibration_volumes = []
-
         self.declare_parameter('silence_duration', 1)  # seconds
         self.declare_parameter('calibration_duration', 3)  # seconds
-        self.declare_parameter('interpreter', 'small'), # base, small
-
+        self.declare_parameter('interpreter', 'small')  # base, small
         self.silence_duration = self.get_parameter('silence_duration').get_parameter_value().integer_value
         self.calibration_duration = self.get_parameter('calibration_duration').get_parameter_value().integer_value
-
         self.model = whisper.load_model(self.get_parameter('interpreter').get_parameter_value().string_value)
         
+        self.action_done_event = Event()
+        self.callback_group = ReentrantCallbackGroup()
+        self.audio_server = ActionServer(
+            self, 
+            StringAction, 'get_audio', 
+            self.get_audio_callback, 
+            callback_group=self.callback_group)
+        self.get_audio_handle = None
+
         self.get_logger().info('\nInit done.\n')
         self.text_history = []
+
+    def get_audio_callback(self, goal_handle):
+        self.listening = True
+        self.get_logger().info('Getting audio...')
+        self.get_audio_handle = goal_handle
+        self.action_done_event.clear()
+        result = StringAction.Result()
+        result.strresult = "Audio received"
+        self.action_done_event.wait()
+        result.strresult = self.text_history[-1]
+        goal_handle.succeed()
+        self.listening = False
+        return result
 
     def server_toggle_callback(self, goal_handle):
         self.get_logger().info('Toggling listening...')
@@ -86,11 +98,15 @@ class SpeechToText(Node):
         goal_handle.succeed()
         return result
 
-    def toggle_callback(self, msg: Num):
+    def toggle_callback(self, msg: Num, test=None):
+        if test is not None:
+            msg.num = test
         if msg.num == 1:
             self.listening = True
+            self.get_logger().info('Listening...')
         elif msg.num == 0:
             self.listening = False
+            self.get_logger().info('Not listening...')
 
     def listener_callback(self, audio: AudioStamped):
         if not self.listening:
@@ -151,8 +167,6 @@ class SpeechToText(Node):
             volume = np.linalg.norm(audio_data) / len(audio_data)
             self.calibration_volumes.append(volume)
         
-
-
     def process_audio_chunk(self, audio_chunk):
         self.listening = False
         audio_data = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32) / 32768.0
@@ -161,27 +175,19 @@ class SpeechToText(Node):
         current_time = time.strftime('%H:%M:%S', time.localtime())
         milliseconds = int((time.time() % 1) * 1000)
         self.publisher2.publish(String(data='[{time}:{milliseconds}]: Audio processed.'.format(time=current_time, milliseconds=milliseconds)))
-
-        # self.action_client.wait_for_server()
-        # goal_msg = TTS2.Goal()
-        # goal_msg.tts = text
-        # self.action_client.send_goal_async(goal_msg)
-
         self.get_logger().info(f'Recognized text: {text}')
-
         if len(text) > 0:
             self.publisher.publish(String(data=text))
             self.text_history.append(text)
+            self.action_done_event.set()
         else: 
             self.get_logger().info('No text recognized, not publishing')
 
 def main(args=None):
     rclpy.init(args=args)
     stt = SpeechToText()
-    rclpy.spin(stt)
-    # stt.destroy_node()
-    # rclpy.shutdown()
+    executor = MultiThreadedExecutor()
+    rclpy.spin(stt, executor)
 
 if __name__ == '__main__':
     main()
-

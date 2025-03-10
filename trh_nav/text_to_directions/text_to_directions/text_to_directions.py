@@ -9,6 +9,7 @@ from trh_msgs.action import Directions
 from trh_msgs.action import SendCoord
 from trh_msgs.msg import Coord
 from rclpy.action import ActionClient
+from trh_msgs.action import GPTAction
 
 import json
 
@@ -45,7 +46,7 @@ class dirSender(Node):
         )
         self._action_server = ActionServer(
             self,
-            StringAction,
+            GPTAction,
             'dir_server',
             self.execute_callback)
         
@@ -66,33 +67,35 @@ class dirSender(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
-        result = StringAction.Result()
-        feedback = StringAction.Feedback()
-        text = goal_handle.request.strrequest
+        result = GPTAction.Result()
+        feedback = GPTAction.Feedback()
+        text = goal_handle.request.user_input
         response = self.generate_text(text)
 
         self.feedback_helper(feedback, goal_handle, "Response: {0}".format(response))
-        self.auto_tts.publish(String(data=response.get("response")))
+        # self.auto_tts.publish(String(data=response.get("response")))
         
-        self.sendLoc.publish(String(data=response.get("response")))
+        # self.sendLoc.publish(String(data=response.get("response")))
         if response.get("destination") not in self.coord_table.keys():
-            self.auto_tts.publish(String(data=response.get("I'm sorry, I don't know how to get there.")))
+            result.goal = "other"
+            # self.auto_tts.publish(String(data=response.get("I'm sorry, I don't know how to get there.")))
             self.feedback_helper(feedback, goal_handle, "Responding to user: {0}".format(response.get("response")))
         else:
-            coord = self.coord_table[response.get("destination")]
-            # self.sendPose.publish(String(data=coord))
-            coord = coord.split(",")
-            coord_to_send = SendCoord.Goal()
-            coord_to_send.x = float(coord[0])
-            coord_to_send.y = float(coord[1])
-            feedback.strfeedback = f"Sending: ({coord_to_send.x}, {coord_to_send.y})"
-            self.add_dir_client.wait_for_server()
-            self._send_goal_future = self.add_dir_client.send_goal_async(
-                coord_to_send, feedback_callback=self.feedback_callback)
-            self._send_goal_future.add_done_callback(self.goal_response_callback)
+            # coord = self.coord_table[response.get("destination")]
+            # # self.sendPose.publish(String(data=coord))
+            # coord = coord.split(",")
+            # coord_to_send = SendCoord.Goal()
+            # coord_to_send.x = float(coord[0])
+            # coord_to_send.y = float(coord[1])
+            # feedback.strfeedback = f"Sending: ({coord_to_send.x}, {coord_to_send.y})"
+            # self.add_dir_client.wait_for_server()
+            # self._send_goal_future = self.add_dir_client.send_goal_async(
+            #     coord_to_send, feedback_callback=self.feedback_callback)
+            # self._send_goal_future.add_done_callback(self.goal_response_callback)
+            result.goal = response.get("destination")
 
-        result.strresult = response.get("response")
-        
+        # result.strresult = response.get("response")
+        result.response = response.get("response")
         goal_handle.succeed()
         return result
     
@@ -117,7 +120,7 @@ class dirSender(Node):
         # self.get_logger().info('Feedback: {0}'.format(feedback.feedback))
         
     def feedback_helper(self, feedback, goal_handle, text):
-        feedback.strfeedback = "Text recieved: {0}".format(text)
+        feedback.feedback = "Text recieved: {0}".format(text)
         goal_handle.publish_feedback(feedback)
 
     def state_redirection(self, msg):

@@ -23,6 +23,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Numba.action"
   "action/SendCoord.action"
   "action/Directions.action"
+  "action/GPTAction.action"
   "msg/Coord.msg"
   "msg/Num.msg"
   DEPENDENCIES builtin_interfaces
