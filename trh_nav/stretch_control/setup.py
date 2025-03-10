@@ -17,9 +17,9 @@ setup(
     maintainer_email='tammerrh@gmail.com',
     description='TODO: Package description',
     license='Apache-2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'stretch_control = stretch_control.stretch_control:main',
         ],
     },
 )
