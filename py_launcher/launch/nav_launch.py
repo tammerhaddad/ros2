@@ -73,6 +73,19 @@ def generate_launch_description():
         name = 'auto_tts',
     )
 
+    nav_hub = Node(
+        package = 'nav_hub',
+        executable = 'nav_hub',
+        name = 'nav_hub',
+    )
+
+    face_detection = Node(
+        package="stretch_deep_perception",
+        executable="detect_faces",
+        name="face_detection",
+        output='screen'
+    )
+
     return launch.LaunchDescription([
         nav_driver_launch,
         speech_to_audio,
@@ -82,5 +95,7 @@ def generate_launch_description():
         trh_nav,
         text_to_audio,
         audio_to_sound,
-        auto_tts
+        auto_tts,
+        nav_hub,
+        face_detection
     ])

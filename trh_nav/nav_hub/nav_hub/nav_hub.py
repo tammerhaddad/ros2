@@ -9,6 +9,7 @@ from trh_msgs.msg import Coord
 from trh_msgs.msg import Num
 from std_msgs.msg import String
 import threading
+from visualization_msgs.msg import MarkerArray
 
 class NavHub(Node):
 
@@ -21,10 +22,12 @@ class NavHub(Node):
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
         self.stt_client = ActionClient(self, StringAction, 'get_audio')
         self.rob_client = ActionClient(self, StringAction, 'stretch_control') #'cam,0.3,0'
+        self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
 
         # possible locations, and their coordinates
         self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
 
+    # Move Camera
     def cam_control(self, tilt, pan):
         goal_msg = StringAction.Goal()
         self.get_logger().info('sending cam goal...')
@@ -40,6 +43,7 @@ class NavHub(Node):
             self.get_logger().info('Cam goal failed')
             return None
     
+    # Speak the imported text
     def tts_call(self, text):
         goal_msg = StringAction.Goal()
         self.get_logger().info('Sending TTS goal...')
@@ -58,6 +62,7 @@ class NavHub(Node):
             self.get_logger().info('TTS goal failed')
             return None
 
+    # Request audio, this will pause the code until the audio is recieved
     def stt_call(self):
         goal_msg = StringAction.Goal()
         self.get_logger().info('sending STT goal...')
@@ -74,6 +79,7 @@ class NavHub(Node):
             self.get_logger().info('STT goal failed')
             return None
 
+    # Request GPT to generate a response, also returns the goal location if there is one
     def gpt_call(self, user_input):
         goal_msg = StringAction.Goal()
         self.get_logger().info('sending GPT goal...')
@@ -90,6 +96,7 @@ class NavHub(Node):
             self.get_logger().info('GPT goal failed')
             return None
 
+    # add a coordinate to the list
     def add_coord_call(self, goal_text):
         coord = self.coord_table[goal_text]
         coord = coord.split(",")
@@ -101,6 +108,7 @@ class NavHub(Node):
             coord_to_send, feedback_callback=self.feedback_callback)
         self._send_goal_future.add_done_callback(self.add_coord_response_callback)
 
+    # feedback callback for add_coord_call
     def add_coord_response_callback(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -110,6 +118,7 @@ class NavHub(Node):
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
 
+    # get result callback for add_coord_call
     def nav_call(self, points):
         goal_msg = Directions.Goal()
         goal_msg.points = points
@@ -119,7 +128,8 @@ class NavHub(Node):
         goal_future = future.result().get_result_async()
         return goal_future
     
-    def run_future(self, goal_future):
+    # feedback callback for nav_call
+    def nav_future(self, goal_future):
         rclpy.spin_until_future_complete(self, goal_future, timeout_sec=1)
         self.get_logger().info('Nav goal completed')
         # this is gonna come into conflict at some point i gotta handle it in main
@@ -130,6 +140,10 @@ class NavHub(Node):
             self.get_logger().info('Nav goal failed')
             return None
 
+    # adds faces to the latest_face variable
+    def face_callback(self, msg):
+        self.latest_face = msg.markers
+    
     def run(self):
         # start
         # idle:
