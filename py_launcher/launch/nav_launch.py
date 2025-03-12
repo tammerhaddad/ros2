@@ -91,7 +91,7 @@ def generate_launch_description():
         speech_to_audio,
         audio_to_text,
         text_to_directions,
-        # pose_sender,
+        # # pose_sender,
         trh_nav,
         text_to_audio,
         audio_to_sound,
