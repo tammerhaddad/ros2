@@ -49,7 +49,11 @@ class dirSender(Node):
             GPTAction,
             'dir_server',
             self.execute_callback)
-        
+        self.gpt_server = ActionServer(
+            self,
+            StringAction,
+            'gpt_server',
+            self.gpt_callback)
         self.add_dir_client = ActionClient(
             self,
             SendCoord,
@@ -231,6 +235,25 @@ class dirSender(Node):
             response = json.loads(function_args)
         self.prompt_history.append({"role": "assistant", "content": response.get("response")})
         return response
+    
+    def gpt_callback(self, goal_handle):
+        result = StringAction.Result()
+        text = goal_handle.request.strrequest
+        response = self.generate_simple_text(text)
+        result.strresult = response
+        goal_handle.succeed()
+        return result
+    def generate_simple_text(self, text):
+        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": text}],
+            model='gpt-4o-mini',
+        )
+        res = chat_completion.choices[0].message.content
+        self.get_logger().info(f"Simple GPT Response: {str(res)}")
+        return res
+
+
 
 def main(args = None):
     rclpy.init(args=args)

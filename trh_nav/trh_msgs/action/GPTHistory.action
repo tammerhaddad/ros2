@@ -1,0 +1,4 @@
+string role
+string message
+---
+int32 result
