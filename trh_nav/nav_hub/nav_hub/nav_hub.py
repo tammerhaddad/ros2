@@ -10,6 +10,7 @@ from trh_msgs.msg import Num
 from std_msgs.msg import String
 import threading
 from visualization_msgs.msg import MarkerArray
+from datetime import datetime
 
 class NavHub(Node):
 
@@ -26,6 +27,7 @@ class NavHub(Node):
 
         # possible locations, and their coordinates
         self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
+        self.latest_face = []
 
     # Move Camera
     def cam_control(self, tilt, pan):
@@ -144,6 +146,30 @@ class NavHub(Node):
     def face_callback(self, msg):
         self.latest_face = msg.markers
     
+    def wait_for_interactor(self, total_time = 1, timeout = -1):
+
+        def face_close_enough(faces):
+            # self.get_logger().info('face close eno0ugh')
+            return len(faces) > 0
+
+        # move head up
+        started = False
+        start_time = datetime.now()
+        while True and (timeout == -1 or (datetime.now() - start_time).total_seconds() < timeout):
+            rclpy.spin_once(self)
+            # self.get_logger().info(f'{face_close_enough(copy.deepcopy(self.latest_face))}')
+            # self.get_logger().info(f'{(self.latest_face)}')
+            if face_close_enough(copy.deepcopy(self.latest_face)):
+                # self.get_logger().info('we;re gere')
+                if not started:
+                    # self.get_logger().info('started face ckkse e3ogyug')
+                    started = True
+                    interact_start_time = datetime.now()
+                else:
+                    # self.get_logger().info(' not started face close ebnough')
+                    if (datetime.now() - interact_start_time).total_seconds() > total_time:
+                        return True
+        return False
     def run(self):
         # start
         # idle:
