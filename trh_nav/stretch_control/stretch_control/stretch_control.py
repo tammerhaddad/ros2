@@ -15,7 +15,7 @@ class RobotControlServer(Node):
         self._action_server = ActionServer(
             self,
             StringAction,
-            'stretch_control',
+            'stretch_control_real',
             self.execute_callback)
         self.error_publish = self.create_publisher(String, 'errors', 10)
         

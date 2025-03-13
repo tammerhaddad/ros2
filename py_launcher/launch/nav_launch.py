@@ -76,7 +76,7 @@ def generate_launch_description():
     stretch_control = Node(
         package = "stretch_control",
         executable = "stretch_control",
-        name = "stretch_control"
+        name = "stretch_control_1"
     )
 
     nav_hub = Node(
@@ -91,6 +91,10 @@ def generate_launch_description():
         name="face_detection",
         output='screen'
     )
+    stretch_core_path = get_package_share_directory('stretch_core')
+    camera_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(stretch_core_path, 'launch'), '/stretch_realsense.launch.py'])
+    )
 
     return launch.LaunchDescription([
         nav_driver_launch,
@@ -104,5 +108,6 @@ def generate_launch_description():
         auto_tts,
         # nav_hub,
         face_detection,
-        stretch_control
+        stretch_control,
+        camera_node
     ])

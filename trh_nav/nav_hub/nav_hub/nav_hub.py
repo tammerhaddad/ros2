@@ -27,7 +27,8 @@ class NavHub(Node):
         self.nav_client = ActionClient(self, Directions, 'nav_action')
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
         self.stt_client = ActionClient(self, StringAction, 'get_audio')
-        self.rob_client = ActionClient(self, StringAction, 'stretch_control') #'cam,0.3,0'
+        self.rob_client = ActionClient(self, StringAction, 'stretch_control_real') #'cam,0.3,0'
+        self.rob_client.wait_for_server()
         self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
         self.gpt_client = ActionClient(self, StringAction, 'gpt_server')
 
@@ -37,7 +38,7 @@ class NavHub(Node):
         self.start_time = datetime.now()
 
     def gpt_call(self, text):
-        goal_msg = StringAction.Goal()
+        goal_msg = StringAction.Goal()  
         self.get_logger().info('sending simple GPT goal...')
         goal_msg.strrequest = text
         future = self.gpt_client.send_goal_async(goal_msg)
@@ -80,8 +81,8 @@ class NavHub(Node):
         # now we setup the loop for the results
         goal_future = future.result().get_result_async()
         # loop goal future
-        rclpy.spin_until_future_complete(self, goal_future)
         self.get_logger().info('TTS goal completed')
+        self.get_logger().info(goal_future.result().result.strresult)
         # if goal_future.result().strresult is not None and goal_future.result().strresult != "":
         #     return True
         # else:
@@ -206,17 +207,19 @@ class NavHub(Node):
 
         # idle
         self.get_logger().info('Startup done.')
-        person = True
         # going to be an outside loop
-        self.cam_control(0, 0)
+        self.cam_control(0, 1)
 
-        # while True:
+        while self.wait_for_interactor:
+            self.get_logger().info("Person has been detected--")
         # if (datetime.now() - self.start_time).total_seconds % 1 < 0.1:
         #     self.get_logger().info("No Person Detected")
         # while self.wait_for_interactor():
         self.tts_call("Hello, how can I help you?")
         while True:
-            self.cam_control(0.3, 0)
+            if self.wait_for_interactor():
+                self.get_logger().info("Person has been detected")
+            self.cam_control(0.3, 1)
             # get user input
             person_response = self.stt_call()
             # need to broaden this to check other ways to say goodbye, maybe with the gpt call?
@@ -226,10 +229,10 @@ class NavHub(Node):
                 self.tts_call("Goodbye! Let me know if you need anything else.")
                 # ADD BREAK WHEN THIS STARTS WORKING-----------------------------------------
             # # look down while thiking
-            self.cam_control(-0.3, 0)
+            self.cam_control(-0.3, 1)
             gpt_response = self.nav_gpt_call(person_response)
             # # look back up to talk to them, we are assuming theyll stay quiet for this
-            self.cam_control(0.3, 0)
+            self.cam_control(0.3, 1)
             self.tts_call(gpt_response[0])
             # # after responding, check if they want to go somewhere and then go there
             if gpt_response[1] is not None:
@@ -257,6 +260,8 @@ class NavHub(Node):
                         # gpt_response = self.gpt_call(person_response)
                         # self.cam_control(0.3, 0)
                         # self.tts_call(gpt_response[0])
+                        if nav_future.done():
+                            break
                     
                     self.get_logger().info('Nav goal completed')
                     # this is gonna come into conflict at some point i gotta handle it in main
