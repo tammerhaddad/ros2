@@ -103,10 +103,10 @@ class SpeechToText(Node):
             msg.num = test
         if msg.num == 1:
             self.listening = True
-            self.get_logger().info('Listening...')
+            # self.get_logger().info('Listening...')
         elif msg.num == 0:
             self.listening = False
-            self.get_logger().info('Not listening...')
+            # self.get_logger().info('Not listening...')
 
     def listener_callback(self, audio: AudioStamped):
         if not self.listening:
@@ -121,6 +121,7 @@ class SpeechToText(Node):
         self.publisher3.publish(String(data='Vol: {volume}'.format(volume=volume)))
         # self.get_logger().info(f'Volume: {volume}, Threshold: {self.volume_threshold}')
 
+        # moving this to init because otherwise it gets run at
         if self.volume_threshold == -1:
             self.set_background_noise_level(audio)
             return
@@ -177,7 +178,7 @@ class SpeechToText(Node):
         self.publisher2.publish(String(data='[{time}:{milliseconds}]: Audio processed.'.format(time=current_time, milliseconds=milliseconds)))
         self.get_logger().info(f'Recognized text: {text}')
         if len(text) > 0:
-            self.publisher.publish(String(data=text))
+            # self.publisher.publish(String(data=text))
             self.text_history.append(text)
             self.action_done_event.set()
         else: 

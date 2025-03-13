@@ -254,7 +254,6 @@ class dirSender(Node):
         return res
 
 
-
 def main(args = None):
     rclpy.init(args=args)
     sender = dirSender()

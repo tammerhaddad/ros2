@@ -73,6 +73,12 @@ def generate_launch_description():
         name = 'auto_tts',
     )
 
+    stretch_control = Node(
+        package = "stretch_control",
+        executable = "stretch_control",
+        name = "stretch_control"
+    )
+
     nav_hub = Node(
         package = 'nav_hub',
         executable = 'nav_hub',
@@ -96,6 +102,7 @@ def generate_launch_description():
         text_to_audio,
         audio_to_sound,
         auto_tts,
-        nav_hub,
-        face_detection
+        # nav_hub,
+        face_detection,
+        stretch_control
     ])

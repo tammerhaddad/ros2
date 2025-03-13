@@ -4,6 +4,7 @@ from rclpy.node import Node
 from trh_msgs.action import StringAction
 from trh_msgs.action import Directions
 from trh_msgs.action import SendCoord
+from trh_msgs.action import GPTAction
 # from trh_msgs.action import ListReq
 from trh_msgs.msg import Coord
 from trh_msgs.msg import Num
@@ -11,6 +12,7 @@ from std_msgs.msg import String
 import threading
 from visualization_msgs.msg import MarkerArray
 from datetime import datetime
+import copy
 
 class NavHub(Node):
 
@@ -21,7 +23,7 @@ class NavHub(Node):
         # THIS LINE SEG FAULTS????
         # self.toggle_listen_client = ActionClient(self, Num, 'listen_toggle') # not used
 
-        self.dir_client = ActionClient(self, SendCoord, 'dir_server')
+        self.dir_client = ActionClient(self, GPTAction, 'dir_server')
         self.nav_client = ActionClient(self, Directions, 'nav_action')
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
         self.stt_client = ActionClient(self, StringAction, 'get_audio')
@@ -32,6 +34,7 @@ class NavHub(Node):
         # possible locations, and their coordinates
         self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
         self.latest_face = []
+        self.start_time = datetime.now()
 
     def gpt_call(self, text):
         goal_msg = StringAction.Goal()
@@ -40,30 +43,31 @@ class NavHub(Node):
         future = self.gpt_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        gpt_response = goal_future.result().strresult
         rclpy.spin_until_future_complete(self, goal_future)
+        gpt_response = goal_future.result().result.strresult
         self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response))
-        if gpt_response is not None and gpt_response != "":
-            return [gpt_response.response, gpt_response.goal]
-        else:
-            self.get_logger().info('GPT goal failed')
-            return None
+        # if gpt_response is not None and gpt_response != "":
+        #     return [gpt_response.response, gpt_response.goal]
+        # else:
+        #     self.get_logger().info('GPT goal failed')
+        #     return None
 
     # Move Camera
     def cam_control(self, tilt, pan):
         goal_msg = StringAction.Goal()
-        self.get_logger().info('sending cam goal...')
+        self.get_logger().info('sending cam goal..')
         goal_msg.strrequest = 'cam,{0},{1}'.format(tilt, pan)
+        self.get_logger().info(goal_msg.strrequest)
         future = self.rob_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
+        self.get_logger().info("cam goal recieved")
         goal_future = future.result().get_result_async()
         rclpy.spin_until_future_complete(self, goal_future)
-        self.get_logger().info('Cam goal completed')
-        if goal_future.result().strresult is not None and goal_future.result().strresult != "":
-            return True
-        else:
-            self.get_logger().info('Cam goal failed')
-            return None
+        # if goal_future.result().result is not None and goal_future.result().result != "":
+        #     return True
+        # else:
+        #     self.get_logger().info('Cam goal failed')
+        #     return None
     
     # Speak the imported text
     def tts_call(self, text):
@@ -78,11 +82,11 @@ class NavHub(Node):
         # loop goal future
         rclpy.spin_until_future_complete(self, goal_future)
         self.get_logger().info('TTS goal completed')
-        if goal_future.result().strresult is not None and goal_future.result().strresult != "":
-            return True
-        else:
-            self.get_logger().info('TTS goal failed')
-            return None
+        # if goal_future.result().strresult is not None and goal_future.result().strresult != "":
+        #     return True
+        # else:
+        #     self.get_logger().info('TTS goal failed')
+        #     return None
 
     # Request audio, this will pause the code until the audio is recieved
     def stt_call(self):
@@ -92,31 +96,32 @@ class NavHub(Node):
         future = self.stt_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        user_input = goal_future.result().strresult
         rclpy.spin_until_future_complete(self, goal_future)
+        user_input = goal_future.result().result
         self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
-        if user_input is not None and user_input != "":
-            return user_input
-        else:
-            self.get_logger().info('STT goal failed')
-            return None
+        # if user_input is not None and user_input != "":
+        #     return user_input
+        # else:
+        #     self.get_logger().info('STT goal failed')
+        #     return None
+        return user_input.strresult
 
     # Request GPT to generate a response, also returns the goal location if there is one
     def nav_gpt_call(self, user_input):
-        goal_msg = StringAction.Goal()
+        goal_msg = GPTAction.Goal()
         self.get_logger().info('sending GPT goal...')
-        goal_msg.strrequest = user_input
+        goal_msg.user_input = user_input
         future = self.dir_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        gpt_response = goal_future.result().strresult
         rclpy.spin_until_future_complete(self, goal_future)
+        gpt_response = goal_future.result().result
         self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response))
-        if gpt_response is not None and gpt_response != "":
-            return [gpt_response.response, gpt_response.goal]
-        else:
-            self.get_logger().info('GPT goal failed')
-            return None
+        # if gpt_response is not None and gpt_response != "":
+        return [gpt_response.response, gpt_response.goal]
+        # else:
+        #     self.get_logger().info('GPT goal failed')
+        #     return None
 
     # add a coordinate to the list
     def add_coord_call(self, goal_text):
@@ -125,48 +130,45 @@ class NavHub(Node):
         coord_to_send = SendCoord.Goal()
         coord_to_send.x = float(coord[0])
         coord_to_send.y = float(coord[1])
-        self.coord_client.wait_for_server()
-        self._send_goal_future = self.coord_client.send_goal_async(
-            coord_to_send, feedback_callback=self.feedback_callback)
-        self._send_goal_future.add_done_callback(self.add_coord_response_callback)
-
-    # feedback callback for add_coord_call
-    def add_coord_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Coord not added :(')
-            return
-        self.get_logger().info('Coord added :)')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
+        self.get_logger().info(f'Adding ({coord_to_send.x},{coord_to_send.y}) to queue')
+        future = self.coord_client.send_goal_async(coord_to_send)
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
+        rclpy.spin_until_future_complete(self, goal_future)
+        gpt_response = goal_future.result().result
+        self.get_logger().info('Coord has been added.')
+        # if gpt_response is not None and gpt_response != "":
+        return True
 
     # get result callback for add_coord_call
-    def nav_call(self, points):
+    def nav_send_goal(self, points):
         goal_msg = Directions.Goal()
         goal_msg.points = points
         self.get_logger().info('Sending nav goal...')
         future = self.nav_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
+        self.get_logger().info('Goal Sent successfully')
         return goal_future
     
     # feedback callback for nav_call
-    def nav_future(self, goal_future):
+    def nav_recieve_goal(self, goal_future):
         rclpy.spin_until_future_complete(self, goal_future, timeout_sec=1)
         self.get_logger().info('Nav goal completed')
         # this is gonna come into conflict at some point i gotta handle it in main
         self.tts_call("I have arrived at the location, is there anything else I can help you with?.")
-        if goal_future.result().strresult is not None and goal_future.result().strresult != "":
-            return True
-        else:
-            self.get_logger().info('Nav goal failed')
-            return None
+        # if goal_future.result().strresult is not None and goal_future.result().strresult != "":
+        #     return True
+        # else:
+        #     self.get_logger().info('Nav goal failed')
+        #     return None
 
     # adds faces to the latest_face variable
     def face_callback(self, msg):
         self.latest_face = msg.markers
     
     def wait_for_interactor(self, total_time = 1, timeout = -1):
+        self.get_logger().info("Waiting for interactor")
 
         def face_close_enough(faces):
             # self.get_logger().info('face close eno0ugh')
@@ -190,6 +192,7 @@ class NavHub(Node):
                     if (datetime.now() - interact_start_time).total_seconds() > total_time:
                         return True
         return False
+    
     def run(self):
         # start
         # idle:
@@ -205,26 +208,30 @@ class NavHub(Node):
         self.get_logger().info('Startup done.')
         person = True
         # going to be an outside loop
-        self.cam_control(0.3, 0)
+        self.cam_control(0, 0)
 
-        while person:
-            # greet
-            self.tts_call("Hello, how can I help you?")
+        # while True:
+        # if (datetime.now() - self.start_time).total_seconds % 1 < 0.1:
+        #     self.get_logger().info("No Person Detected")
+        # while self.wait_for_interactor():
+        self.tts_call("Hello, how can I help you?")
+        while True:
             self.cam_control(0.3, 0)
             # get user input
             person_response = self.stt_call()
             # need to broaden this to check other ways to say goodbye, maybe with the gpt call?
             # i could add a "goodbye" location that the model could check for
-            if person_response == "Goodbye.":
+            check_for_goodbye = self.gpt_call(f"Does the following response indicate the person is leaving? Answer only y or n: {person_response}")
+            if check_for_goodbye == "y":
                 self.tts_call("Goodbye! Let me know if you need anything else.")
-                break
-            # look down while thiking
+                # ADD BREAK WHEN THIS STARTS WORKING-----------------------------------------
+            # # look down while thiking
             self.cam_control(-0.3, 0)
             gpt_response = self.nav_gpt_call(person_response)
-            # look back up to talk to them, we are assuming theyll stay quiet for this
+            # # look back up to talk to them, we are assuming theyll stay quiet for this
             self.cam_control(0.3, 0)
             self.tts_call(gpt_response[0])
-            # after responding, check if they want to go somewhere and then go there
+            # # after responding, check if they want to go somewhere and then go there
             if gpt_response[1] is not None:
                 # i want to add this to the gpt responses to make it more natural
                 # need to add another server
@@ -235,19 +242,21 @@ class NavHub(Node):
                     self.add_coord_call(gpt_response[1])
                     # say "go" with nav_client
                     # do i have to thread this??? ---------
-                    nav_future = self.nav_call(1)
-                    while not rclpy.spin_until_finished(nav_future, timeout_sec=1):
+                    nav_future = self.nav_send_goal(1)
+                    while not rclpy.spin_until_future_complete(self, nav_future, timeout_sec=1):
+                        # pass
+                        self.get_logger().info("Driving...")
                         # add timeout
-                        person_response = self.stt_call()
-                        # need to broaden this to check other ways to say goodbye, maybe with the gpt call?
-                        # i could add a "goodbye" location that the model could check for
-                        if person_response == "Goodbye.":
-                            self.tts_call("Goodbye! Let me know if you need anything else.")
-                            break
-                        self.cam_control(-0.3, 0)
-                        gpt_response = self.gpt_call(person_response)
-                        self.cam_control(0.3, 0)
-                        self.tts_call(gpt_response[0])
+                        # person_response = self.stt_call()
+                        # # need to broaden this to check other ways to say goodbye, maybe with the gpt call?
+                        # # i could add a "goodbye" location that the model could check for
+                        # if person_response == "Goodbye.":
+                        #     self.tts_call("Goodbye! Let me know if you need anything else.")
+                        #     break
+                        # self.cam_control(-0.3, 0)
+                        # gpt_response = self.gpt_call(person_response)
+                        # self.cam_control(0.3, 0)
+                        # self.tts_call(gpt_response[0])
                     
                     self.get_logger().info('Nav goal completed')
                     # this is gonna come into conflict at some point i gotta handle it in main
