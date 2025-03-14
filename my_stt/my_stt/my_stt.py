@@ -38,7 +38,6 @@ class SpeechToText(Node):
             reliability=ReliabilityPolicy.BEST_EFFORT,  # Ensure reliability
             depth=10
         )
-        self.listening = False
         self.subscription = self.create_subscription(
             AudioStamped,
             'input_audio',
@@ -71,7 +70,7 @@ class SpeechToText(Node):
             self.get_audio_callback, 
             callback_group=self.callback_group)
         self.get_audio_handle = None
-
+        self.listening = True
         self.get_logger().info('\nInit done.\n')
         self.text_history = []
 
@@ -85,7 +84,7 @@ class SpeechToText(Node):
         self.action_done_event.wait()
         result.strresult = self.text_history[-1]
         goal_handle.succeed()
-        self.listening = False
+        self.listening = True
         return result
 
     def server_toggle_callback(self, goal_handle):
@@ -124,6 +123,7 @@ class SpeechToText(Node):
         # moving this to init because otherwise it gets run at
         if self.volume_threshold == -1:
             self.set_background_noise_level(audio)
+            self.listening = False
             return
         
         if volume > self.volume_threshold:
