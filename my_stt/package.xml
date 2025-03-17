@@ -3,8 +3,8 @@
 <package format="3">
   <name>my_stt</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="tammerhaddad@todo.todo">tammerhaddad</maintainer>
+  <description>A simple ros2 speech to text package with request capabilites, relies on audio_common</description>
+  <maintainer email="tammerrh@gmail.com">tammerhaddad</maintainer>
   <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>

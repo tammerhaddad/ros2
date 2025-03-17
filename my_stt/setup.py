@@ -14,8 +14,8 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='tammerhaddad',
-    maintainer_email='tammerhaddad@todo.todo',
-    description='TODO: Package description',
+    maintainer_email='tammerrh@gmail.com',
+    description='A simple ros2 speech to text package with request capabilites, relies on audio_common',
     license='Apache-2.0',
     entry_points={
         'console_scripts': [
