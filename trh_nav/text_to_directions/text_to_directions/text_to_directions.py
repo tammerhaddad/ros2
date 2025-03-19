@@ -10,6 +10,7 @@ from trh_msgs.action import SendCoord
 from trh_msgs.msg import Coord
 from rclpy.action import ActionClient
 from trh_msgs.action import GPTAction
+from trh_msgs.action import GPTHistory
 
 import json
 
@@ -64,10 +65,26 @@ class dirSender(Node):
             Directions,
             "nav_action"
         )
+        self.history_server = ActionServer(
+            self,
+            GPTHistory,
+            "gpt_history",
+            self.history_callback
+        )
         
         self.prompt_history = [{"role": "system", "content": "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them."}]
         self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
         self.get_logger().info('Init done.')
+    
+    def history_callback(self, goal_handle):
+        result = GPTHistory.Result()
+        role = goal_handle.request.role
+        text = goal_handle.request.text
+        self.prompt_history.append({"role": role, "content": text})
+        result.success = True
+        goal_handle.succeed()
+        return result
+        
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
@@ -243,6 +260,7 @@ class dirSender(Node):
         result.strresult = response
         goal_handle.succeed()
         return result
+   
     def generate_simple_text(self, text):
         client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         chat_completion = client.chat.completions.create(

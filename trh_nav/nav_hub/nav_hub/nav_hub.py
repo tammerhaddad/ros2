@@ -5,6 +5,8 @@ from trh_msgs.action import StringAction
 from trh_msgs.action import Directions
 from trh_msgs.action import SendCoord
 from trh_msgs.action import GPTAction
+from trh_msgs.action import BlankToString
+from trh_msgs.action import GPTHistory
 # from trh_msgs.action import ListReq
 from trh_msgs.msg import Coord
 from trh_msgs.msg import Num
@@ -27,23 +29,47 @@ class NavHub(Node):
         self.dir_client = ActionClient(self, GPTAction, 'dir_server')
         self.nav_client = ActionClient(self, Directions, 'nav_action')
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
-        self.stt_client = ActionClient(self, StringAction, 'get_audio')
+        self.stt_client = ActionClient(self, BlankToString, 'get_audio')
         self.rob_client = ActionClient(self, StringAction, 'stretch_control_real') #'cam,0.3,0'
+        self.gpt_history_client = ActionClient(self, GPTHistory, 'gpt_history')
         self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
         self.gpt_client = ActionClient(self, StringAction, 'gpt_server')
+        self.get_logger().info("Waiting for: tts_client")
         self.tts_client.wait_for_server()
+        self.get_logger().info("Waiting for: dir_client")
         self.dir_client.wait_for_server()
+        self.get_logger().info("Waiting for: nav_client")
         self.nav_client.wait_for_server()
+        self.get_logger().info("Waiting for: coord_client")
         self.coord_client.wait_for_server()
+        self.get_logger().info("Waiting for: stt_client")
         self.stt_client.wait_for_server()
+        self.get_logger().info("Waiting for: rob_client")
         self.rob_client.wait_for_server()
+        self.get_logger().info("Waiting for: gpt_client")
         self.gpt_client.wait_for_server()
-
+        self.get_logger().info("Waiting for: history_client")
+        self.gpt_history_client.wait_for_server()
 
         # possible locations, and their coordinates
         self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
         self.latest_face = []
         self.start_time = datetime.now()
+
+    def history_call(self, role, text):
+        goal_msg = GPTHistory.Goal()
+        self.get_logger('Adding input to GPT History...')
+        goal_msg.role = role
+        goal_msg.text = text
+        future = self.gpt_client.send_goal_async(goal_msg)
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
+        rclpy.spin_until_future_complete(self, goal_future)
+        res = goal_future.result().result.success
+        # if gpt_response is not None and gpt_response != "":
+        if not res:
+            self.get_logger().info("GPT history not added")
+        return res
 
     def gpt_call(self, text):
         goal_msg = StringAction.Goal()  
@@ -101,14 +127,13 @@ class NavHub(Node):
 
     # Request audio, this will pause the code until the audio is recieved
     def stt_call(self):
-        goal_msg = StringAction.Goal()
+        goal_msg = BlankToString.Goal()
         self.get_logger().info('sending STT goal...')
-        goal_msg.strrequest = "get audio" # not used, i need to make a new action for this
         future = self.stt_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
         rclpy.spin_until_future_complete(self, goal_future)
-        user_input = goal_future.result().result.strresult
+        user_input = goal_future.result().result.result
         self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
         # if user_input is not None and user_input != "":
         #     return user_input
