@@ -21,11 +21,10 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from audio_common_msgs.msg import AudioStamped
 from std_msgs.msg import String
-from trh_msgs.msg import Num
 from rclpy.action import ActionServer
 from trh_msgs.action import Numba
 from trh_msgs.action import StringAction
-
+from trh_msgs.action import BlankToString
 from threading import Event
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
@@ -63,7 +62,7 @@ class SpeechToText(Node):
         # audio request server
         self.audio_server = ActionServer(
             self,
-            StringAction, 'get_audio',
+            BlankToString, 'get_audio',
             self.get_audio_callback,
             callback_group=self.callback_group)
         
@@ -97,12 +96,12 @@ class SpeechToText(Node):
         # clear any events, so i dont request the same audio twice
         self.action_done_event.clear()
         # set up the result
-        result = StringAction.Result()
-        result.strresult = "Audio received"
+        result = BlankToString.Result()
+        result.result = "Audio received"
         # wait in a thread for the audio to be recorded and processed
         self.action_done_event.wait()
         # the text is added when done processing, so just fetch the most recent.
-        result.strresult = self.text_history[-1]
+        result.result = self.text_history[-1]
         goal_handle.succeed()
         # Stop listening because the request is over.
         self.listening = False

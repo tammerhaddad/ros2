@@ -14,6 +14,7 @@ from visualization_msgs.msg import MarkerArray
 from datetime import datetime
 import copy
 import time
+from audio_common_msgs.action import TTS
 
 class NavHub(Node):
 
@@ -22,7 +23,7 @@ class NavHub(Node):
         # THIS LINE SEG FAULTS????
         # self.toggle_listen_client = ActionClient(self, Num, 'listen_toggle') # not used
 
-        self.tts_client = ActionClient(self, StringAction, 'TTS_action')
+        self.tts_client = ActionClient(self, TTS, 'say')
         self.dir_client = ActionClient(self, GPTAction, 'dir_server')
         self.nav_client = ActionClient(self, Directions, 'nav_action')
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
@@ -79,9 +80,9 @@ class NavHub(Node):
     
     # Speak the imported text
     def tts_call(self, text):
-        goal_msg = StringAction.Goal()
+        goal_msg = TTS.Goal()
         self.get_logger().info('Sending TTS goal...')
-        goal_msg.strrequest = text
+        goal_msg.text = text
         future = self.tts_client.send_goal_async(goal_msg)
         # wait for the send_goal future to be done
         rclpy.spin_until_future_complete(self, future)
@@ -91,7 +92,7 @@ class NavHub(Node):
         while not goal_future.done():
             rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
         self.get_logger().info('TTS goal completed')
-        self.get_logger().info(goal_future.result().result.strresult)
+        # self.get_logger().info(goal_future.result().result.strresult)
         # if goal_future.result().strresult is not None and goal_future.result().strresult != "":
         #     return True
         # else:

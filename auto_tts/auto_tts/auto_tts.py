@@ -4,40 +4,48 @@ from rclpy.action import ActionServer
 from rclpy.node import Node
 from audio_common_msgs.action import TTS
 from std_msgs.msg import String
-from trh_msgs.msg import Num
 from trh_msgs.action import StringAction
+from trh_msgs.action import BlankToBool
 
 class auto_tts(Node):
     def __init__(self):
         super().__init__('input_sender')
+        # this is one way to request speech
         self.subscription = self.create_subscription(
             String,
             'TTS_text',
             self.send_goal,
             10)
-        self.publisher = self.create_publisher(
-            Num,
-            'yappin',
-            10)
+        # asking for the status of the speech
+        # self.speaking_req = self.ActionServer(
+        #     self,
+        #     BlankToBool,
+        #     'is_speaking',
+        #     self.is_speaking_callback
+        # )
+        # main way to request speech, the equivalent of "/say" for tts_ros
         self.server = ActionServer(
             self,
             StringAction,
             'TTS_action',
             self.execute_callback
         )
+        self.speaking = False
         self._action_client = ActionClient(self, TTS, 'say')
         self.get_logger().info("Init done.")
-        # self.timer = self.create_timer(0.1, self.update_timer)
-        self.num = Num()
-        self.num.num = 1
 
-    # dont want this because i made stt a server
-    # def update_timer(self):
-        # self.publisher.publish(self.num)
+    # this is the callback for the "is_speaking" request, just returns true or false
+    def is_speaking_callback(self, goal_handle):
+        self.get_logger().info('Executing goal...')
+        result = BlankToBool.Result()
+        result.result = self.speaking
+        goal_handle.succeed()
+        return result
 
+    # this is the callback for the main way to request speech
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
-        self.num.num = 0
+        self.speaking = True
         result = StringAction.Result()
         feedback = StringAction.Feedback()
         msg = TTS
@@ -49,9 +57,8 @@ class auto_tts(Node):
         goal_handle.succeed()
         return result
 
+    # sends a goal to tts_ros
     def send_goal(self, msg):
-        self.num.num = 0
-        self.publisher.publish(self.num)
         goal_msg = TTS.Goal()
         goal_msg.text = str(msg.data)
         
@@ -63,27 +70,24 @@ class auto_tts(Node):
         # self.get_logger().info('Sending TTS goal: ' + goal_msg.text)
         self._send_goal_future.add_done_callback(self.goal_response_callback)
     
+    # checks if tts_ros has accepted the goal
     def goal_response_callback(self, future):
         goal_handle = future.result()
-
         if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected.')
+            self.get_logger().info('tts_ros has rejected request.')
             return
-        
-        self.get_logger().info('Goal accepted.')
+    
         self._get_result_future = goal_handle.get_result_async()
-        res = self._get_result_future.result()
         self._get_result_future.add_done_callback(self.get_result_callback)
 
+    # when tts_ros is done speaking, we can set speaking to false, and 
     def get_result_callback(self, future):
         result = future.result().result
-        self.get_logger().info('Result: {0}'.format(result.text))
-        self.num.num = 1
-        self.publisher.publish(self.num)
+        # self.get_logger().info('Result: {0}'.format(result.text))
+        self.speaking = False
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
-        # self.get_logger().info('Received feedback: {0}'.format(feedback.partial_sequence)
 
 
 def main(args = None):

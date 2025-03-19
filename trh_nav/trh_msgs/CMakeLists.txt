@@ -25,6 +25,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Directions.action"
   "action/GPTAction.action"
   "action/GPTHistory.action"
+  "action/BlankToString.action"
+  "action/BlankToBool.action"
   "msg/Coord.msg"
   "msg/Num.msg"
   DEPENDENCIES builtin_interfaces

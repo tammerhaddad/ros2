@@ -1,4 +1,5 @@
 string role
-string message
+string text
 ---
-int32 result
+bool success
+---

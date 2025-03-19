@@ -45,7 +45,7 @@ class RobotControlServer(Node):
                 self.move_head(tilt, pan)
                 feedback.strfeedback = "Head moved to tilt {tilt}, pan {pan}."
                 goal_handle.publish_feedback(feedback)
-                result.strresult = "Done: tilt {tilt}, pan {pan}"
+                result.strresult = "Done: tilt {tilt}, pan {pana}"
                 goal_handle.succeed()
                 self.get_logger().info("Goal Complete: {goal_handle.request.strrequest}")
             case _:
