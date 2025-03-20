@@ -67,12 +67,7 @@ class dirSender(Node):
         response = self.generate_text(text)
 
         self.feedback_helper(feedback, goal_handle, "Response: {0}".format(response))
-        if response.get("destination") not in self.coord_table.keys():
-            result.goal = "other"
-            self.feedback_helper(feedback, goal_handle, "Responding to user: {0}".format(response.get("response")))
-        else:
-            result.goal = response.get("destination")
-
+        result.goal = response.get("destination")
         result.response = response.get("response")
         goal_handle.succeed()
         return result
@@ -164,7 +159,7 @@ class dirSender(Node):
                         "type": "object",
                         "properties": {
                             "response": {"type": "string", "description": "What the assistant should say to the user"},
-                            "destination": {"type": "string", "description": "Where the user said the assistant should go. Options: 'table', 'box', 'home'. If the user is not explicitly asking for directions or telling you to go somewhere, just respond with 'other'. If there is a word that sounds like one of the locations, like 'boss' (which sounds like box), use the approximation in case the user misspoke. Only do this if the words have similar letters, if someone says 'aquarium' then just say other"},
+                            "destination": {"type": "string", "description": "Where the user said the assistant should go. Options: 'table', 'box', 'home'. If the user is not explicitly asking for directions or telling you to go somewhere, just respond with 'other'. If there is a word that sounds like one of the locations, like 'boss' (which sounds like box), use the approximation in case the user misspoke. Only do this if the words have similar letters, if someone says 'aquarium' then just say other. if the user specifices a location that is not in the list, replay 'invalid'"},
                         },
                         "required": ["response", "destination"]
                     }
