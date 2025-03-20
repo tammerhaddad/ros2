@@ -18,33 +18,6 @@ class dirSender(Node):
 
     def __init__(self):
         super().__init__('dir_sender')
-        self.subscription = self.create_subscription(
-            String,
-            'input_text',
-            self.send_directions,
-            10
-        )
-        self.sendPose = self.create_publisher(
-            String,
-            'text_poses',
-            10
-        )
-        self.sendLoc = self.create_publisher(
-            String,
-            'locations',
-            10
-        )
-        self.states = self.create_subscription(
-            String,
-            'states',
-            self.state_redirection,
-            10
-        )
-        self.auto_tts = self.create_publisher(
-            String,
-            'TTS_text',
-            10
-        )
         self._action_server = ActionServer(
             self,
             GPTAction,
@@ -77,6 +50,7 @@ class dirSender(Node):
         self.get_logger().info('Init done.')
     
     def history_callback(self, goal_handle):
+        # pretty simply add 
         result = GPTHistory.Result()
         role = goal_handle.request.role
         text = goal_handle.request.text
@@ -84,7 +58,6 @@ class dirSender(Node):
         result.success = True
         goal_handle.succeed()
         return result
-        
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
@@ -94,28 +67,12 @@ class dirSender(Node):
         response = self.generate_text(text)
 
         self.feedback_helper(feedback, goal_handle, "Response: {0}".format(response))
-        # self.auto_tts.publish(String(data=response.get("response")))
-        
-        # self.sendLoc.publish(String(data=response.get("response")))
         if response.get("destination") not in self.coord_table.keys():
             result.goal = "other"
-            # self.auto_tts.publish(String(data=response.get("I'm sorry, I don't know how to get there.")))
             self.feedback_helper(feedback, goal_handle, "Responding to user: {0}".format(response.get("response")))
         else:
-            # coord = self.coord_table[response.get("destination")]
-            # # self.sendPose.publish(String(data=coord))
-            # coord = coord.split(",")
-            # coord_to_send = SendCoord.Goal()
-            # coord_to_send.x = float(coord[0])
-            # coord_to_send.y = float(coord[1])
-            # feedback.strfeedback = f"Sending: ({coord_to_send.x}, {coord_to_send.y})"
-            # self.add_dir_client.wait_for_server()
-            # self._send_goal_future = self.add_dir_client.send_goal_async(
-            #     coord_to_send, feedback_callback=self.feedback_callback)
-            # self._send_goal_future.add_done_callback(self.goal_response_callback)
             result.goal = response.get("destination")
 
-        # result.strresult = response.get("response")
         result.response = response.get("response")
         goal_handle.succeed()
         return result
@@ -132,8 +89,8 @@ class dirSender(Node):
         self._get_result_future.add_done_callback(self.get_result_callback)
 
     def get_result_callback(self, future):
+        
         result = future.result().result
-        self.get_logger().info('Result: {0}'.format(result.result))
         # rclpy.shutdown()
 
     def feedback_callback(self, feedback_msg):
@@ -143,29 +100,6 @@ class dirSender(Node):
     def feedback_helper(self, feedback, goal_handle, text):
         feedback.feedback = "Text recieved: {0}".format(text)
         goal_handle.publish_feedback(feedback)
-
-    def state_redirection(self, msg):
-        self.get_logger().info("State recieved: {0}".format(msg.data))
-        state = msg.data.split(".")
-        match state[0]:
-            case "nav":
-                match state[1]:
-                    case "start":
-                        self.auto_tts.publish(String(data="Navigating to {0}.".format(state[2])))
-                        self.prompt_history.append({"role": "system", "content": "You have started navigating to {0}.".format(state[2])})
-                    case "success":
-                        self.auto_tts.publish(String(data="You have arrived at {0}.".format(state[2])))
-                        self.prompt_history.append({"role": "system", "content": "You have arrived at {0}.".format(state[2])})
-                    case "fail":
-                        self.auto_tts.publish(String(data="Navigation to {0} has failed.".format(state[2])))
-                        self.auto_tts.publish(String(data="Navigating to {0}.".format(state[2])))
-                        self.prompt_history.append({"role": "system", "content": "You have started navigating to {0}.".format(state[2])})
-                    case _:
-                        self.get_logger().info("Invalid state: {0}".format(msg.data))
-            case "talk":
-                pass
-            case _:
-                self.get_logger().info("Invalid state: {0}".format(msg.data))   
          
     def send_directions(self, msg):
         text = msg.data
