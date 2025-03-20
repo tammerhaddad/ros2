@@ -182,12 +182,12 @@ class NavHub(Node):
                     if (datetime.now() - interact_start_time).total_seconds() > total_time:
                         return True
         return False
-    
+
     def run(self):
         self.get_logger().info('Startup done.')
         running = True
         while running:
-            self.cam_control(0.3, -1.5)      
+            self.cam_control(0.3, -1.5)
             while self.wait_for_interactor():
                 self.cam_control(0.5, -1.5)
                 self.tts_call("Hello, how can I help you?")
@@ -245,7 +245,6 @@ def main(args=None):
     executor_thread = threading.Thread(target=executor.spin, daemon=True)
     executor_thread.start()
     node.run()
-
 
 if __name__ == '__main__':
     main()

@@ -34,6 +34,8 @@ class myNavigator(Node):
             'nav_action',
             self.nav_action)
         
+        self.publisher = self.create_publisher(String, 'nav_feedback', 10)
+        
         self.get_logger().info('Init done.')
         self.path = []
         self.english_path = []
@@ -108,6 +110,7 @@ class myNavigator(Node):
                 results += f"{poses[i].pose.position.x}, {poses[i].pose.position.y} failed.\n"
         
         result.result = results
+        self.publisher.publish(String(data=results))
         goal_handle.succeed()
         return result
     
