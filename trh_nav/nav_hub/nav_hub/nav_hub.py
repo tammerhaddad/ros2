@@ -54,10 +54,10 @@ class NavHub(Node):
 
     def history_call(self, role, text):
         goal_msg = GPTHistory.Goal()
-        self.get_logger('Adding input to GPT History...')
+        self.get_logger().info('Adding input to GPT History...')
         goal_msg.role = role
         goal_msg.text = text
-        future = self.gpt_client.send_goal_async(goal_msg)
+        future = self.gpt_history_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
         rclpy.spin_until_future_complete(self, goal_future)
@@ -191,18 +191,19 @@ class NavHub(Node):
             while self.wait_for_interactor():
                 self.cam_control(0.5, -1.5)
                 self.tts_call("Hello, how can I help you?")
-                self.history_call("robot", "Hello, how can I help you?")
+                self.history_call("assistant", "Hello, how can I help you?")
                 interacting = True
                 while interacting:
+                    self.get_logger().info("Continuing interaction")
                     person_response = self.stt_call()
                     check_for_goodbye = self.gpt_call(
                         f"You are a navigational robot with the ability to go to the following locations: "
-                        f"{self.coord_table.values()}. Does the following response indicate that the user is leaving? "
+                        f"{self.coord_table.values()}. Does the following response indicate that the user is leaving? be very strict, only say yes if they say 'goodbye' 'cya' 'im leaving' or something similar"
                         f"Answer only y or n: {person_response}"
                     )
                     if check_for_goodbye == "y":
                         self.tts_call("Goodbye! Let me know if you need anything else.")
-                        self.history_call("robot", "Goodbye! Let me know if you need anything else.")
+                        self.history_call("assistant", "Goodbye! Let me know if you need anything else.")
                         time.sleep(5)
                         self.add_coord_call("home")
                         nav_future = self.nav_send_goal(1)
@@ -213,10 +214,10 @@ class NavHub(Node):
                     self.cam_control(0.5, -1.5)
                     self.tts_call(gpt_response[0])
                     if gpt_response[1] is not None:
-                        if gpt_response[1] == "other":
+                        if gpt_response[1] == "invalid":
                             self.tts_call("I'm sorry, I don't have that location on my map. Please try again.")
-                            self.history_call("robot", "I'm sorry, I don't have that location on my map. Please try again.")
-                        else:
+                            self.history_call("assistant", "I'm sorry, I don't have that location on my map. Please try again.")
+                        elif gpt_response[1] in self.coord_table.keys():
                             self.add_coord_call(gpt_response[1])
                             self.cam_control(0, -1.5)
                             nav_future = self.nav_send_goal(1)
@@ -232,7 +233,9 @@ class NavHub(Node):
                             
                             self.get_logger().info('Nav goal completed')
                             # self.tts_call("I have arrived at the location, is there anything else I can help you with?.")
-                            # self.history_call("robot", "I have arrived at the location, is there anything else I can help you with?.")
+                            # self.history_call("assistant", "I have arrived at the location, is there anything else I can help you with?.")
+                        else: 
+                            self.get_logger().info("Conversation detected")
 
         self.get_logger().info("code runs")
 
