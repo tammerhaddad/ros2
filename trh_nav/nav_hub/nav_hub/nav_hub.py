@@ -109,11 +109,24 @@ class NavHub(Node):
         future = self.stt_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        rclpy.spin_until_future_complete(self, goal_future)
+        rclpy.spin_until_future_complete(self, goal_future, timeout_sec=15.0)
+        if not goal_future.done():
+            self.get_logger().info('STT goal timed out')
+            return "UserTimedOut404"
         user_input = goal_future.result().result.result
         self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
         self.get_logger().info(f"User said: {user_input}")
-        return user_input    
+        return user_input
+    
+    # this is the first half of the stt_call, simply sending the request and returning a future if the goal was accepted
+    def stt_listen(self):
+        goal_msg = BlankToString.Goal()
+        self.get_logger().info('sending STT goal...')
+        future = self.stt_client.send_goal_async(goal_msg)
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
+        self.get_logger().info('Nav Goal Sent successfully')
+        return goal_future
 
     # Request GPT to generate a response, also returns the goal location if there is one
     def nav_gpt_call(self, user_input):
@@ -140,7 +153,7 @@ class NavHub(Node):
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
         rclpy.spin_until_future_complete(self, goal_future)
-        gpt_response = goal_future.result().result
+        # gpt_response = goal_future.result().result
         self.get_logger().info('Coord has been added.')
         return True
 
@@ -152,15 +165,9 @@ class NavHub(Node):
         future = self.nav_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        self.get_logger().info('Goal Sent successfully')
+        self.get_logger().info('Nav Goal Sent successfully')
         return goal_future
     
-    # feedback callback for nav_call
-    def nav_recieve_goal(self, goal_future):
-        rclpy.spin_until_future_complete(self, goal_future, timeout_sec=1)
-        self.get_logger().info('Nav goal completed')
-        self.tts_call("I have arrived at the location, is there anything else I can help you with?.")
-
     # adds faces to the latest_face variable
     def face_callback(self, msg):
         self.latest_face = msg.markers
@@ -196,6 +203,12 @@ class NavHub(Node):
                 while interacting:
                     self.get_logger().info("Continuing interaction")
                     person_response = self.stt_call()
+                    # times out if the user doesn't respond
+                    if person_response == "UserTimedOut404":
+                        self.add_coord_call("home")
+                        nav_future = self.nav_send_goal(1)
+                        interacting = False
+                        break
                     check_for_goodbye = self.gpt_call(
                         f"You are a navigational robot with the ability to go to the following locations: "
                         f"{self.coord_table.values()}. Does the following response indicate that the user is leaving? be very strict, only say yes if they say 'goodbye' 'cya' 'im leaving' or something similar"
@@ -221,15 +234,18 @@ class NavHub(Node):
                             self.add_coord_call(gpt_response[1])
                             self.cam_control(0, -1.5)
                             nav_future = self.nav_send_goal(1)
+                            stt_future = self.stt_listen()
                             while not nav_future.done():
                                 rclpy.spin_until_future_complete(self, nav_future, timeout_sec=1)
                                 self.get_logger().info("Driving...")
-                                # person_response = self.stt_call()
-                                # #check for goodbye here once it actually works
-                                # self.cam_control(-0.3, -1.5)
-                                # gpt_response = self.gpt_call(person_response)
-                                # self.cam_control(0.3, -1.5)
-                                # self.tts_call(gpt_response[0])
+                                rclpy.spin_until_future_complete(self, stt_future, timeout_set=1)
+                                if stt_future.done():
+                                    user_input = stt_future.result().result.result
+                                    self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
+                                    gpt_response = self.nav_gpt_call(person_response)
+                                    break
+                            stt_future.cancel_goal_async()
+                            rclpy.spin_until_future_complete(self, stt_future)
                             
                             self.get_logger().info('Nav goal completed')
                             # self.tts_call("I have arrived at the location, is there anything else I can help you with?.")
