@@ -12,6 +12,25 @@ from sensor_msgs.msg import JointState
 from sensor_msgs.msg import BatteryState
 
 
+class JointState():
+    def __init__(self):
+        self.name = []
+        self.position = []
+        self.velocity = []
+        self.effort = []
+
+    def __repr__(self):
+        return f"JointState(name={self.name}, position={self.position}, velocity={self.velocity}, effort={self.effort})"
+    
+    def set(self, nameList, positionList, velocityList, effortList):
+        self.name = nameList
+        self.position = positionList
+        self.velocity = velocityList
+        self.effort = effortList
+
+    def get(self):
+        return self.name, self.position, self.velocity, self.effort
+
 class RobotControlServer(Node):
 
     def __init__(self, hello_node):
