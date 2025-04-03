@@ -12,7 +12,7 @@ from sensor_msgs.msg import JointState
 from sensor_msgs.msg import BatteryState
 
 
-class JointState():
+class MyJointState():
     def __init__(self):
         self.name = []
         self.position = []
@@ -38,7 +38,7 @@ class RobotControlServer(Node):
         self._action_server = ActionServer(
             self,
             StringAction,
-            'stretch_control_real',
+            'stretch_control',
             self.execute_callback)
         self.error_publish = self.create_publisher(String, 'errors', 10)
         
@@ -59,17 +59,27 @@ class RobotControlServer(Node):
         # float64[] position
         # float64[] velocity
         # float64[] effort
-        self.current_joints = JointState()
+        self.current_joints = MyJointState()
         self.vel_msg = Twist()
         self.vel_publish = lambda self, v_m, w_r: self.vel_pub.publish(Twist(linear={'x': v_m, 'y': 0, 'z': 0}, angular={'z': w_r, 'y': 0, 'x': 0}))
         self.get_logger().info('Init done.')
+        self.temp_battery_calculator = []
+        self.battery_base = None
 
     
     def joint_state_callback(self, msg):
         self.current_joints.set(msg.name, msg.position, msg.velocity, msg.effort)
 
     def battery_callback(self, msg):
-        if msg.voltage > 12.2:
+        if self.battery_base is None:
+            self.temp_battery_calculator.append(msg.voltage)
+            if len(self.temp_battery_calculator) > 20:
+                self.battery_base = sum(self.temp_battery_calculator) / len(self.temp_battery_calculator) + 0.2
+                self.get_logger().info(f'Battery base set to {self.battery_base}')
+                self.temp_battery_calculator = None
+                
+            return
+        if msg.voltage > self.battery_base:
             if not self.charging:
                 self.get_logger().info('Battery is charging.')
             self.charging = True
@@ -95,6 +105,51 @@ class RobotControlServer(Node):
                 result.strresult = "Done: tilt {tilt}, pan {pana}"
                 goal_handle.succeed()
                 self.get_logger().info("Goal Complete: {goal_handle.request.strrequest}")
+            case "control":
+                secondary = nums[1]
+                match secondary:
+                    case "home":
+                        feedback.strfeedback = "Homing robot..."
+                        goal_handle.publish_feedback(feedback)
+                        self.home_robot()
+                        feedback.strfeedback = "Robot homed."
+                        goal_handle.publish_feedback(feedback)
+                        result.strresult = "Done: Robot homed."
+                        goal_handle.succeed()
+                    case "stop":
+                        feedback.strfeedback = "Stopping robot..."
+                        goal_handle.publish_feedback(feedback)
+                        self.stop_robot()
+                        feedback.strfeedback = "Robot stopped."
+                        goal_handle.publish_feedback(feedback)
+                        result.strresult = "Done: Robot stopped."
+                        goal_handle.succeed()
+                    case "position":
+                        feedback.strfeedback = "Getting robot position..."
+                        goal_handle.publish_feedback(feedback)
+                        xya = self.get_robot_position()
+                        feedback.strfeedback = f"Robot position: {xya}"
+                        goal_handle.publish_feedback(feedback)
+                        result.strresult = f"Done: Robot position: {xya}"
+                        goal_handle.succeed()
+                    case "charging":
+                        feedback.strfeedback = "Getting robot charging status..."
+                        goal_handle.publish_feedback(feedback)
+                        charging = self.is_charging()
+                        feedback.strfeedback = f"Robot charging: {charging}"
+                        goal_handle.publish_feedback(feedback)
+                        result.strresult = f"Done: Robot charging: {charging}"
+                        goal_handle.succeed()
+                    case "joints":
+                        feedback.strfeedback = "Getting robot joints..."
+                        goal_handle.publish_feedback(feedback)
+                        joints = self.joint_states()
+                        feedback.strfeedback = f"Robot joints: {joints}"
+                        goal_handle.publish_feedback(feedback)
+                        result.strresult = f"Done: Robot joints: {joints}"
+                        goal_handle.succeed()
+                    case _:
+                        self.get_logger().info("Invalid robot control order.")
             case _:
                 self.get_logger().info("Invalid robot movement order.")
                 goal_handle.succeed()
@@ -102,7 +157,25 @@ class RobotControlServer(Node):
     
     def home_robot(self):
         self.get_logger().info('Homing Robot.')
-        self.robot.home()
+        self.hello_node.home_the_robot()
+        self.hello_node.stow_the_robot()
+    
+    def stop_robot(self):
+        self.get_logger().info('Stopping Robot.')
+        self.hello_node.stop_the_robot()
+
+    def get_robot_position(self):
+        self.get_logger().info('Getting Robot position.')
+        xya, time = self.hello_node.get_robot_floor_pose_xya(floor_frame='map')
+        # xya = [x, y, angle]
+        self.get_logger().info(f'Robot position: (x: {xya[0]}, y: {xya[1]}, angle: {xya[2]})')
+        return xya
+    
+    def is_charging(self):
+        return self.charging
+    
+    def joint_states(self):
+        return self.current_joints.get()
     
     def move_head(self, tilt, pan=0):
       self.hello_node.switch_to_position_mode()
