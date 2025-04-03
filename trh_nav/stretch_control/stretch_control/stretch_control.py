@@ -5,8 +5,12 @@ from rclpy.node import Node
 from trh_msgs.action import StringAction
 from std_msgs.msg import String
 import hello_helpers.hello_misc as hm
-import stretch_body.robot
 import threading
+
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import JointState
+from sensor_msgs.msg import BatteryState
+
 
 class RobotControlServer(Node):
 
@@ -19,7 +23,6 @@ class RobotControlServer(Node):
             self.execute_callback)
         self.error_publish = self.create_publisher(String, 'errors', 10)
         
-        self.robot = stretch_body.robot.Robot()
         self.hello_node = hello_node
         # if not self.robot.startup():
         #     self.get_logger().info('Robot failed to start up')
@@ -29,7 +32,32 @@ class RobotControlServer(Node):
         #     self.error_publish.publish(String(data="Homing Robot"))
         #     self.home_robot()
 
+        self.vel_pub = self.create_publisher(Twist, 'stretch/cmd_vel', 10)
+        self.joint_sub = self.create_subscription(JointState, 'stretch/joint_states', self.joint_state_callback, 10)
+        self.bat_sub = self.create_subscription(BatteryState, 'battery', self.battery_callback, 10)
+        self.charging = False
+        # string[] name
+        # float64[] position
+        # float64[] velocity
+        # float64[] effort
+        self.current_joints = JointState()
+        self.vel_msg = Twist()
+        self.vel_publish = lambda self, v_m, w_r: self.vel_pub.publish(Twist(linear={'x': v_m, 'y': 0, 'z': 0}, angular={'z': w_r, 'y': 0, 'x': 0}))
         self.get_logger().info('Init done.')
+
+    
+    def joint_state_callback(self, msg):
+        self.current_joints.set(msg.name, msg.position, msg.velocity, msg.effort)
+
+    def battery_callback(self, msg):
+        if msg.voltage > 12.2:
+            if not self.charging:
+                self.get_logger().info('Battery is charging.')
+            self.charging = True
+        else:
+            if self.charging:
+                self.get_logger().info('Battery is not charging.')
+            self.charging = False
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')

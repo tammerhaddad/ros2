@@ -58,10 +58,13 @@ class TrhTTS(Node):
         self.cleanup_pyaudio(self.p, self.stream)
 
     def initialize_pyaudio_stream(self, p):
-        return p.open(format=pyaudio.paInt16,
-                        channels=1,
-                        rate=16000,
-                        output=True)
+        stream = p.open(
+            format=pyaudio.paInt16,
+            channels=1,
+            rate=16000,
+            output=True
+        )
+        return stream
 
     def play_audio_stream(self, festival_process, stream):
         chunk_size = 1024
