@@ -190,13 +190,16 @@ class NavHub(Node):
                         return True
         return False
 
+
     def run(self):
         self.get_logger().info('Startup done.')
         running = True
+        # setting up the gpt to be a robot
+        self.history_call("system", "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them.")
         while running:
             self.cam_control(0.3, -1.5)
             while self.wait_for_interactor():
-                self.cam_control(0.5, -1.5)
+                self.cam_control(0.5, -1.5  )
                 self.tts_call("Hello, how can I help you?")
                 self.history_call("assistant", "Hello, how can I help you?")
                 interacting = True
