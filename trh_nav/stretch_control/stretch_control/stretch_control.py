@@ -105,8 +105,8 @@ class RobotControlServer(Node):
                 secondary = nums[1]
                 match secondary:
                     case "cam":
-                        tilt = float(nums[1])
-                        pan = float(nums[2])
+                        tilt = float(nums[2])
+                        pan = float(nums[3])
                         feedback.strfeedback = "Recieved: tilt {tilt}, pan {pan}. Moving head..."
                         goal_handle.publish_feedback(feedback)
                         self.move_head(tilt, pan)

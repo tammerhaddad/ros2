@@ -51,7 +51,9 @@ class dirSender(Node):
         )
         # sets up the gpt to be a robot
         self.prompt_history = []
-        self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
+        # self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
+        # self.coord_table = {"chair": "-1,1"}
+        self.coord_table = {"elevator": "2,-10",  "home": "0,0"}
         self.get_logger().info('Init done.')
     
     # pretty simply add a prompt to the history, this can be from the user, gpt, even the system.
@@ -157,7 +159,7 @@ class dirSender(Node):
             return
 
         self.get_logger().info('Navigation goal accepted :)')
-
+ 
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
     
@@ -176,7 +178,7 @@ class dirSender(Node):
                         "type": "object",
                         "properties": {
                             "response": {"type": "string", "description": "What the assistant should say to the user"},
-                            "destination": {"type": "string", "description": "Where the user said the assistant should go. Options: 'table', 'box', 'home'. If the user is not explicitly asking for directions or telling you to go somewhere, just respond with 'other'. If there is a word that sounds like one of the locations, like 'boss' (which sounds like box), use the approximation in case the user misspoke. Only do this if the words have similar letters, if someone says 'aquarium' then just say other. if the user specifices a location that is not in the list, replay 'invalid'"},
+                            "destination": {"type": "string", "description": f"Where the user said the assistant should go. Options: {self.coord_table.keys()}. If the user is not explicitly asking for directions or telling you to go somewhere, just respond with 'other'. If there is a word that sounds like one of the locations, like 'boss' (which sounds like box), use the approximation in case the user misspoke. Only do this if the words have similar letters, if someone says 'aquarium' then just say other. if the user specifices a location that is not in the list, reply 'invalid'"},
                         },
                         "required": ["response", "destination"]
                     }

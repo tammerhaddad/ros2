@@ -11,6 +11,10 @@ from rclpy.action import ActionServer
 class myNavigator(Node):
     def __init__(self):
         super().__init__("my_nav")
+
+        # initalizes navigator, which is a wrapper around nav2
+        self.navigator = BasicNavigator()
+
         # simple initial pose, probably can be simplified
         self.initial_pose = PoseStamped()
         self.initial_pose.header.frame_id = 'map'
@@ -19,9 +23,6 @@ class myNavigator(Node):
         self.initial_pose.pose.position.y = 0.0
         self.initial_pose.pose.orientation.z = 0.0
         self.initial_pose.pose.orientation.w = 1.0
-
-        # initalizes navigator, which is a wrapper around nav2
-        self.navigator = BasicNavigator()
         self.navigator.setInitialPose(self.initial_pose)
         self.navigator.waitUntilNav2Active()
 

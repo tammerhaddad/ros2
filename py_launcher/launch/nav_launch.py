@@ -13,7 +13,7 @@ def generate_launch_description():
       PythonLaunchDescriptionSource([os.path.join(
          get_package_share_directory('stretch_nav2'), 'launch',
          'navigation.launch.py')]),
-         launch_arguments={'map': os.path.join(os.getenv('HELLO_FLEET_PATH'), 'maps', 'local_correct_map.yaml')}.items(),
+         launch_arguments={'map': os.path.join(os.getenv('HELLO_FLEET_PATH'), 'maps', 'wvh_first_floor.yaml')}.items(),
       )
 
     speech_to_audio = Node(
@@ -50,12 +50,12 @@ def generate_launch_description():
     )
 
     text_to_audio = Node(
-        package = 'tts_ros',
-        executable = 'tts_node',
+        package = 'trh_tts',
+        executable = 'trh_tts',
         name = 'prompt_to_audio',
-        remappings=[
-                ('audio', 'output_audio'),
-            ]
+        # remappings=[
+        #         ('audio', 'output_audio'),
+        #     ]
     )
 
     audio_to_sound = Node(

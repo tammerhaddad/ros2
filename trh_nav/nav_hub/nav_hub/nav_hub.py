@@ -7,12 +7,13 @@ from trh_msgs.action import SendCoord
 from trh_msgs.action import GPTAction
 from trh_msgs.action import BlankToString
 from trh_msgs.action import GPTHistory
+from trh_msgs.action import StringToBool
 import threading
 from visualization_msgs.msg import MarkerArray
 from datetime import datetime
 import copy
 import time
-from audio_common_msgs.action import TTS
+# from audio_common_msgs.action import TTS
 
 class NavHub(Node):
 
@@ -21,12 +22,13 @@ class NavHub(Node):
         # THIS LINE SEG FAULTS????
         # self.toggle_listen_client = ActionClient(self, Num, 'listen_toggle') # not used
 
-        self.tts_client = ActionClient(self, TTS, 'say')
+        # self.tts_client = ActionClient(self, TTS, 'say')
+        self.tts_client = ActionClient(self, StringToBool, 'trh_tts')
         self.dir_client = ActionClient(self, GPTAction, 'dir_server')
         self.nav_client = ActionClient(self, Directions, 'nav_action')
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
         self.stt_client = ActionClient(self, BlankToString, 'get_audio')
-        self.rob_client = ActionClient(self, StringAction, 'stretch_control_real') #'cam,0.3,0'
+        self.rob_client = ActionClient(self, StringAction, 'stretch_control') #'cam,0.3,0'
         self.gpt_history_client = ActionClient(self, GPTHistory, 'gpt_history')
         self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
         self.gpt_client = ActionClient(self, StringAction, 'gpt_server')
@@ -48,22 +50,25 @@ class NavHub(Node):
         self.gpt_history_client.wait_for_server()
 
         # possible locations, and their coordinates
-        self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
+        # self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
+        # self.coord_table = {"chair": "1,-1"}
+        self.coord_table = {"elevator": "2,-10", "home": "0,0"}
         self.latest_face = []
         self.start_time = datetime.now()
 
     def history_call(self, role, text):
-        goal_msg = GPTHistory.Goal()
-        self.get_logger().info('Adding input to GPT History...')
-        goal_msg.role = role
-        goal_msg.text = text
-        future = self.gpt_history_client.send_goal_async(goal_msg)
-        rclpy.spin_until_future_complete(self, future)
-        goal_future = future.result().get_result_async()
-        rclpy.spin_until_future_complete(self, goal_future)
-        res = goal_future.result().result.success
-        if not res:
-            self.get_logger().info("GPT history not added")
+        # goal_msg = GPTHistory.Goal()
+        # self.get_logger().info('Adding input to GPT History...')
+        # goal_msg.role = role
+        # goal_msg.text = text
+        # future = self.gpt_history_client.send_goal_async(goal_msg)
+        # rclpy.spin_until_future_complete(self, future)
+        # goal_future = future.result().get_result_async()
+        # rclpy.spin_until_future_complete(self, goal_future)
+        # res = goal_future.result().result.success
+        # if not res:
+        #     self.get_logger().info("GPT history not added")
+        res = True
         return res
 
     def gpt_call(self, text):
@@ -82,7 +87,7 @@ class NavHub(Node):
     def cam_control(self, tilt, pan):
         goal_msg = StringAction.Goal()
         self.get_logger().info('sending cam goal..')
-        goal_msg.strrequest = 'cam,{0},{1}'.format(tilt, pan)
+        goal_msg.strrequest = 'control,cam,{0},{1}'.format(tilt, pan)
         self.get_logger().info(goal_msg.strrequest)
         future = self.rob_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
@@ -92,9 +97,9 @@ class NavHub(Node):
     
     # Speak the imported text
     def tts_call(self, text):
-        goal_msg = TTS.Goal()
+        goal_msg = StringToBool.Goal()
         self.get_logger().info('Sending TTS goal...')
-        goal_msg.text = text
+        goal_msg.request = text
         future = self.tts_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
@@ -197,9 +202,9 @@ class NavHub(Node):
         # setting up the gpt to be a robot
         self.history_call("system", "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them.")
         while running:
-            self.cam_control(0.3, -1.5)
+            self.cam_control(0.3, 0.0)
             while self.wait_for_interactor():
-                self.cam_control(0.5, -1.5  )
+                self.cam_control(0.5, 0.0)
                 self.tts_call("Hello, how can I help you?")
                 self.history_call("assistant", "Hello, how can I help you?")
                 interacting = True
@@ -225,9 +230,9 @@ class NavHub(Node):
                         nav_future = self.nav_send_goal(1)
                         interacting = False
                         break
-                    self.cam_control(0, -1.5)
+                    self.cam_control(0, 0.0)
                     gpt_response = self.nav_gpt_call(person_response)
-                    self.cam_control(0.5, -1.5)
+                    self.cam_control(0.5, 0)
                     self.tts_call(gpt_response[0])
                     if gpt_response[1] is not None:
                         if gpt_response[1] == "invalid":
@@ -235,20 +240,20 @@ class NavHub(Node):
                             self.history_call("assistant", "I'm sorry, I don't have that location on my map. Please try again.")
                         elif gpt_response[1] in self.coord_table.keys():
                             self.add_coord_call(gpt_response[1])
-                            self.cam_control(0, -1.5)
+                            self.cam_control(0, 0.0)
                             nav_future = self.nav_send_goal(1)
                             stt_future = self.stt_listen()
                             while not nav_future.done():
                                 rclpy.spin_until_future_complete(self, nav_future, timeout_sec=1)
                                 self.get_logger().info("Driving...")
-                                rclpy.spin_until_future_complete(self, stt_future, timeout_set=1)
-                                if stt_future.done():
-                                    user_input = stt_future.result().result.result
-                                    self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
-                                    gpt_response = self.nav_gpt_call(person_response)
-                                    break
-                            stt_future.cancel_goal_async()
-                            rclpy.spin_until_future_complete(self, stt_future)
+                                # rclpy.spin_until_future_complete(self, stt_future, timeout_set=1)
+                                # if stt_future.done():
+                                #     user_input = stt_future.result().result.result
+                                #     self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
+                                #     gpt_response = self.nav_gpt_call(person_response)
+                                #     break
+                            # stt_future.cancel_goal_async()
+                            # rclpy.spin_until_future_complete(self, stt_future)
                             
                             self.get_logger().info('Nav goal completed')
                             # self.tts_call("I have arrived at the location, is there anything else I can help you with?.")

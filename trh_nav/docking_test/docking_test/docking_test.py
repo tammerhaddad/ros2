@@ -119,29 +119,29 @@ class DockingControl(Node):
                 v = cmd['head_tilt_up']
                 self.head_tilt_command.command_stick_to_motion(v, self.hello_node)
 
-class CommandBase:
-    # ...existing code from normalized_velocity_control.py...
+# class CommandBase:
+#     # ...existing code from normalized_velocity_control.py...
 
-class CommandLift:
-    # ...existing code from normalized_velocity_control.py...
+# class CommandLift:
+#     # ...existing code from normalized_velocity_control.py...
 
-class CommandArm:
-    # ...existing code from normalized_velocity_control.py...
+# class CommandArm:
+#     # ...existing code from normalized_velocity_control.py...
 
-class CommandHeadPan:
-    # ...existing code from normalized_velocity_control.py...
+# class CommandHeadPan:
+#     # ...existing code from normalized_velocity_control.py...
 
-class CommandHeadTilt:
-    # ...existing code from normalized_velocity_control.py...
+# class CommandHeadTilt:
+#     # ...existing code from normalized_velocity_control.py...
 
-zero_vel = {
-    'base_forward': 0.0,
-    'base_counterclockwise': 0.0,
-    'lift_up': 0.0,
-    'arm_out': 0.0,
-    'head_pan_counterclockwise': 0.0,
-    'head_tilt_up': 0.0,
-}
+# zero_vel = {
+#     'base_forward': 0.0,
+#     'base_counterclockwise': 0.0,
+#     'lift_up': 0.0,
+#     'arm_out': 0.0,
+#     'head_pan_counterclockwise': 0.0,
+#     'head_tilt_up': 0.0,
+# }
 
 def main(args=None):
 
