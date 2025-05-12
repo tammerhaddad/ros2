@@ -53,7 +53,7 @@ class dirSender(Node):
         self.prompt_history = []
         # self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
         # self.coord_table = {"chair": "-1,1"}
-        self.coord_table = {"elevator": "2,-10",  "home": "0,0"}
+        self.coord_table = {"elevator": "2,-10", "exit": "-7,2",  "home": "0,0"}
         self.get_logger().info('Init done.')
     
     # pretty simply add a prompt to the history, this can be from the user, gpt, even the system.
