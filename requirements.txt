@@ -1,0 +1,7 @@
+threading
+openai
+rclpy
+numpy
+launch
+os
+json
