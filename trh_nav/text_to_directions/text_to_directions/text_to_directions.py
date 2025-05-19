@@ -56,7 +56,7 @@ class dirSender(Node):
         self.coord_table = {"elevator": "2,-10", "exit": "-7,2", "lab": "2, -20", "home": "0,0"}
         self.get_logger().info('Init done.')
     
-    # pretty simply add a prompt to the history, this can be from the user, gpt, even the system.
+    # adds a prompt to the history list
     def history_callback(self, goal_handle):
         result = GPTHistory.Result()
         role = goal_handle.request.role
@@ -66,6 +66,7 @@ class dirSender(Node):
         goal_handle.succeed()
         return result
 
+    # handles the main gpt action server callback
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
         result = GPTAction.Result()
@@ -80,7 +81,7 @@ class dirSender(Node):
         goal_handle.succeed()
         return result
     
-    # just checks if the coord is added or not
+    # checks if the coord is added or not
     def goal_response_callback(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -92,23 +93,23 @@ class dirSender(Node):
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
 
-    # not used
+    # not used just a placeholder for result callback
     def get_result_callback(self, future):
         
         result = future.result().result
         # rclpy.shutdown()
 
-    # not used
+    # not used just a placeholder for feedback callback
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback.coord_list
         # self.get_logger().info('Feedback: {0}'.format(feedback.feedback))
         
-    # logs the text that the gpt gave back
+    # logs the text that the gpt gave back, printing to feeback
     def feedback_helper(self, feedback, goal_handle, text):
         feedback.feedback = "Text recieved: {0}".format(text)
         goal_handle.publish_feedback(feedback)
     
-    # DEPRECATED CODE FROM WHEN THIS WAS A SUBSCRIBER
+    # deprecated code from when this was a subscriber
     def send_directions(self, msg):
         text = msg.data
         response = self.generate_text(text)
@@ -163,11 +164,11 @@ class dirSender(Node):
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.get_result_callback)
     
-    # pretty simple text generation, along with the goal
+    # generates a response using openai and returns a dict with response and destination
     def generate_text(self, text):
         self.prompt_history.append({"role": "user", "content": text})
 
-        # preset to be a robot that assists in navigation, will probably move this outside of this node soon
+        # preset to be a robot that assists in navigation will probably move this outside of this node soon
         functions = [
             {
                 "type": "function",
@@ -196,15 +197,14 @@ class dirSender(Node):
         )
         response_message = chat_completion.choices[0].message
         response = {}
-        # we split the response based on the function, will move this out of the node along with the hardcoded function
+        # we split the response based on the function will move this out of the node along with the hardcoded function
         if response_message.tool_calls:
             function_args = response_message.tool_calls[0].function.arguments
             response = json.loads(function_args)
         self.prompt_history.append({"role": "assistant", "content": response.get("response")})
         return response
     
-    # simple_gpt_callback function
-    # just text to text
+    # simple gpt callback function just text to text
     def gpt_callback(self, goal_handle):
         result = StringAction.Result()
         text = goal_handle.request.strrequest
@@ -213,8 +213,7 @@ class dirSender(Node):
         goal_handle.succeed()
         return result
     
-    # could have put this in the above function but seemed better to keep seperate
-    # just a simpler version of the generate_text function, purely text to text
+    # just a simpler version of the generate_text function purely text to text
     def generate_simple_text(self, text):
         client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         chat_completion = client.chat.completions.create(
@@ -227,6 +226,7 @@ class dirSender(Node):
 
 
 def main(args = None):
+    # initializes ros2 node and spins
     rclpy.init(args=args)
     sender = dirSender()
     rclpy.spin(sender)

@@ -13,7 +13,6 @@ from visualization_msgs.msg import MarkerArray
 from datetime import datetime
 import copy
 import time
-# from audio_common_msgs.action import TTS
 
 class NavHub(Node):
 
@@ -22,7 +21,10 @@ class NavHub(Node):
         # THIS LINE SEG FAULTS????
         # self.toggle_listen_client = ActionClient(self, Num, 'listen_toggle') # not used
 
+        # outdated, now useing self made tts
         # self.tts_client = ActionClient(self, TTS, 'say')
+
+        # initialize the clients
         self.tts_client = ActionClient(self, StringToBool, 'trh_tts')
         self.dir_client = ActionClient(self, GPTAction, 'dir_server')
         self.nav_client = ActionClient(self, Directions, 'nav_action')
@@ -32,6 +34,9 @@ class NavHub(Node):
         self.gpt_history_client = ActionClient(self, GPTHistory, 'gpt_history')
         self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
         self.gpt_client = ActionClient(self, StringAction, 'gpt_server')
+
+        # wait for the action servers to be available
+        # i log which one we are waiting for so we can see which one isnt running yet
         self.get_logger().info("Waiting for: tts_client")
         self.tts_client.wait_for_server()
         self.get_logger().info("Waiting for: dir_client")
@@ -50,7 +55,7 @@ class NavHub(Node):
         self.gpt_history_client.wait_for_server()
 
         # possible locations, and their coordinates
-        # self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"}
+        # self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"} # 
         # self.coord_table = {"chair": "1,-1"}
         self.coord_table = {"elevator": "2,-10", "exit": "-7,2", "lab": "2, -20", "home": "0,0"}
         self.latest_face = []
@@ -114,7 +119,7 @@ class NavHub(Node):
         future = self.stt_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        rclpy.spin_until_future_complete(self, goal_future, timeout_sec=15.0)
+        rclpy.spin_until_future_complete(self, goal_future, timeout_sec=30.0)
         if not goal_future.done():
             self.get_logger().info('STT goal timed out')
             return "UserTimedOut404"
@@ -179,11 +184,13 @@ class NavHub(Node):
     
     def wait_for_interactor(self, total_time = 1, timeout = -1):
 
+        # if there are faces detected, return true
         def face_close_enough(faces):
             return len(faces) > 0
 
         started = False
         start_time = datetime.now()
+        # we wait for the determined amount of time, then check if there are faces detected
         while True and (timeout == -1 or (datetime.now() - start_time).total_seconds() < timeout):
             rclpy.spin_once(self)
             if face_close_enough(copy.deepcopy(self.latest_face)):
@@ -202,27 +209,51 @@ class NavHub(Node):
         # setting up the gpt to be a robot
         self.history_call("system", "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them.")
         while running:
+
+            # initial cam position a bit above level
             self.cam_control(0.3, 0.0)
             while self.wait_for_interactor():
+                # looks higher up when person detected
                 self.cam_control(0.5, 0.0)
                 self.tts_call("Hello, how can I help you?")
                 self.history_call("assistant", "Hello, how can I help you?")
                 interacting = True
+
+                # this is so we can toggle interaction off even if the user is here
                 while interacting:
                     self.get_logger().info("Continuing interaction")
+                    # gets text
                     person_response = self.stt_call()
+                    self.cam_control(0.3, 0.0)
                     # times out if the user doesn't respond
                     if person_response == "UserTimedOut404":
-                        self.add_coord_call("home")
-                        nav_future = self.nav_send_goal(1)
-                        interacting = False
-                        break
+                        person_there = False
+                        # just a sweep of the area
+                        positions = [-1, -0.5, 0, 0.5, 1]
+                        for i in positions:
+                            self.cam_control(i, 0.0)
+                            if self.wait_for_interactor(1, 1):
+                                person_there = True
+                                self.cam_control(0.5, 0.0)
+                                break
+                        # if they left, go home
+                        if not person_there:
+                            self.add_coord_call("home")
+                            nav_future = self.nav_send_goal(1)
+                            interacting = False
+                            self.cam_control(0, 0.0)
+                            self.tts_call("Goodbye! Let me know if you need anything else.")
+                            self.history_call("assistant", "Goodbye! Let me know if you need anything else.")
+                            break
+
+                    # if the user says goodbye, go home
                     check_for_goodbye = self.gpt_call(
                         f"You are a navigational robot with the ability to go to the following locations: "
                         f"{self.coord_table.values()}. Does the following response indicate that the user is leaving? be very strict, only say yes if they say 'goodbye' 'cya' 'im leaving' or something similar"
                         f"Answer only y or n: {person_response}"
                     )
                     if check_for_goodbye == "y":
+                        self.cam_control(0, 0.0)
                         self.tts_call("Goodbye! Let me know if you need anything else.")
                         self.history_call("assistant", "Goodbye! Let me know if you need anything else.")
                         time.sleep(5)
@@ -230,18 +261,27 @@ class NavHub(Node):
                         nav_future = self.nav_send_goal(1)
                         interacting = False
                         break
-                    self.cam_control(0, 0.0)
+
+                    # otherwise, we process the response
                     gpt_response = self.nav_gpt_call(person_response)
                     self.cam_control(0.5, 0)
+                    self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response[0]))     
+                    # speak out the gpts response
                     self.tts_call(gpt_response[0])
+                    # if the user had a location in mind, we proceed with navigation
                     if gpt_response[1] is not None:
+                        # obviously if the response is invalid, we ask them to repeat
                         if gpt_response[1] == "invalid":
+                            # need to decide how to loop this
                             self.tts_call("I'm sorry, I don't have that location on my map. Please try again.")
                             self.history_call("assistant", "I'm sorry, I don't have that location on my map. Please try again.")
-                        elif gpt_response[1] in self.coord_table.keys():
+                        elif gpt_response[1] in self.coord_table.keys() or gpt_response[1] == "other":
+                            if gpt_response[1] == "other":
+                                break
                             self.add_coord_call(gpt_response[1])
                             self.cam_control(0, 0.0)
                             nav_future = self.nav_send_goal(1)
+                            # not used yet, this is for speaking while driving                            
                             stt_future = self.stt_listen()
                             while not nav_future.done():
                                 rclpy.spin_until_future_complete(self, nav_future, timeout_sec=1)
@@ -259,6 +299,7 @@ class NavHub(Node):
                             # self.tts_call("I have arrived at the location, is there anything else I can help you with?.")
                             # self.history_call("assistant", "I have arrived at the location, is there anything else I can help you with?.")
                         else: 
+                            # not invalid but not a location, just a conversation
                             self.get_logger().info("Conversation detected")
 
         self.get_logger().info("code runs")

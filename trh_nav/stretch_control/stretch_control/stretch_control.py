@@ -104,6 +104,7 @@ class RobotControlServer(Node):
             case "control":
                 secondary = nums[1]
                 match secondary:
+                    # moves main camera
                     case "cam":
                         tilt = float(nums[2])
                         pan = float(nums[3])
@@ -115,6 +116,7 @@ class RobotControlServer(Node):
                         result.strresult = "Done: tilt {tilt}, pan {pana}"
                         goal_handle.succeed()
                         self.get_logger().info("Goal Complete: {goal_handle.request.strrequest}")
+                    # sends the robot home (to 0,0)
                     case "home":
                         feedback.strfeedback = "Homing robot..."
                         goal_handle.publish_feedback(feedback)
@@ -123,6 +125,7 @@ class RobotControlServer(Node):
                         goal_handle.publish_feedback(feedback)
                         result.strresult = "Done: Robot homed."
                         goal_handle.succeed()
+                    # ideally stops the robot immidiately, have not tested yet
                     case "stop":
                         feedback.strfeedback = "Stopping robot..."
                         goal_handle.publish_feedback(feedback)
@@ -131,14 +134,7 @@ class RobotControlServer(Node):
                         goal_handle.publish_feedback(feedback)
                         result.strresult = "Done: Robot stopped."
                         goal_handle.succeed()
-                    case "position":
-                        feedback.strfeedback = "Getting robot position..."
-                        goal_handle.publish_feedback(feedback)
-                        xya = self.get_robot_position()
-                        feedback.strfeedback = f"Robot position: {xya}"
-                        goal_handle.publish_feedback(feedback)
-                        result.strresult = f"Done: Robot position: {xya}"
-                        goal_handle.succeed()
+                    # rotates the robot to a given angle
                     case "rotate":
                         feedback.strfeedback = "Rotating robot..."
                         goal_handle.publish_feedback(feedback)
@@ -153,6 +149,7 @@ class RobotControlServer(Node):
             case "info":
                 secondary = nums[1]
                 match secondary:
+                    # just a boolean if the robot is charging or not, updated live so you can request it at any time
                     case "charging":
                         feedback.strfeedback = "Getting robot charging status..."
                         goal_handle.publish_feedback(feedback)
@@ -161,6 +158,16 @@ class RobotControlServer(Node):
                         goal_handle.publish_feedback(feedback)
                         result.strresult = f"Done: Robot charging: {charging}"
                         goal_handle.succeed()
+                    # returns the robots current position in terms of x, y, and angle
+                    case "position":
+                        feedback.strfeedback = "Getting robot position..."
+                        goal_handle.publish_feedback(feedback)
+                        xya = self.get_robot_position()
+                        feedback.strfeedback = f"Robot position: {xya}"
+                        goal_handle.publish_feedback(feedback)
+                        result.strresult = f"Done: Robot position: {xya}"
+                        goal_handle.succeed()
+                    # returns a list of joint states as a string
                     case "joints":
                         feedback.strfeedback = "Getting robot joints..."
                         goal_handle.publish_feedback(feedback)

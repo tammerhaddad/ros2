@@ -40,15 +40,17 @@ class myNavigator(Node):
             self.nav_action)
                 
         self.get_logger().info('Init done.')
+        # list of poses to navigate to
+        # this is a list of poses, not coordinates
         self.path = []
         # holds the coordinates in a readable format
         self.english_path = []
 
     # only used when nav_action is used with no coords in queue
     def reset_pose(self):
-        self.navigator.setInitialPose(self.initial_pose)
-        self.navigator.waitUntilNav2Active()
-        self.get_logger().info('Initial Pose set to (0,0).') 
+        # resets the robot to the initial pose (goes home)
+        self.navigate(self.initial_pose)
+        self.get_logger().info('Resetting to initial pose.')
 
     # add coord callback, adds a coord to a list
     def add_coord(self, goal_handle):
@@ -106,6 +108,7 @@ class myNavigator(Node):
         for _ in range(num_poses):
             poses.append(self.path.pop(0))
         # results is to track the result of each pose, for example (success, success, fail, abort, success)
+
         # NOT FULLY IMPLEMENTED
         results = []
         # navigates to each pose in order
