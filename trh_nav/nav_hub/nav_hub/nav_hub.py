@@ -135,7 +135,7 @@ class NavHub(Node):
         future = self.stt_client.send_goal_async(goal_msg)
         rclpy.spin_until_future_complete(self, future)
         goal_future = future.result().get_result_async()
-        self.get_logger().info('Nav Goal Sent successfully')
+        self.get_logger().info('STT Goal Sent successfully')
         return goal_future
 
     # Request GPT to generate a response, also returns the goal location if there is one
@@ -262,6 +262,8 @@ class NavHub(Node):
                         interacting = False
                         break
 
+                    if not interacting:
+                        break
                     # otherwise, we process the response
                     gpt_response = self.nav_gpt_call(person_response)
                     self.cam_control(0.5, 0)
