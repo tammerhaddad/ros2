@@ -202,19 +202,64 @@ class NavHub(Node):
                         return True
         return False
 
-    # def interact(self) -> STATE:
+    def interact(self, user_input):
 
-    #     user = self.stt_call()
-    #     analyze = analyze(user) -> not direct, directions, conversation, etc
-    #     match(analyze):
-    #         not direct:
-    #             return STATE("say nothing")
-    #         directions:
-    #             self.tts_call(self.nav_gpt_call(user))
-    #             return State("directions")
-    #         conversation:
-    #             self.tts_call(self.gpt_call)
+        # user = self.stt_call()
+        analyze = self.analyzeSpeech(user_input) # -> not direct, directions, conversation, etc
+        # if the user is not talking to Cedar, we return
+        if analyze == "not direct":
+            return "not direct"
+        
+        gpt_response = self.nav_gpt_call(user_input)
+        self.cam_control(0.5, 0)
+        self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response[0]))     
+        # speak out the gpts response
+        self.tts_call(gpt_response[0])
+        match analyze:
+            case "directions":
+                # self.tts_call(self.nav_gpt_call(user_input))
 
+                if gpt_response[1] == "invalid":
+                            # need to decide how to loop this
+                            self.tts_call("I'm sorry, I don't have that location on my map. Please try again.")
+                            self.history_call("assistant", "I'm sorry, I don't have that location on my map. Please try again.")
+                elif gpt_response[1] == "other":
+                    self.get_logger().info("CONVERSATION DETECTED AS DIRECTIONS")
+                else:
+                    self.add_coord_call(gpt_response[1])
+                    self.cam_control(0, 0.0)
+                    nav_future = self.nav_send_goal(1)
+                    # not used yet, this is for speaking while driving                            
+                    stt_future = self.stt_listen()
+                    while not nav_future.done():
+                        rclpy.spin_until_future_complete(self, nav_future, timeout_sec=1)
+                        self.get_logger().info("Driving...")
+                        # rclpy.spin_until_future_complete(self, stt_future, timeout_set=1)
+                        # if stt_future.done():
+                        #     user_input = stt_future.result().result.result
+                        #     self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
+                        #     gpt_response = self.nav_gpt_call(person_response)
+                        #     break
+                    # stt_future.cancel_goal_async()
+                    # rclpy.spin_until_future_complete(self, stt_future)
+                    
+                    self.get_logger().info('Nav goal completed')
+                    self.tts_call(f"I have arrived at the destination, is there anything else I can help you with?.")
+                    self.history_call("assistant", "I have arrived at the destination, is there anything else I can help you with?")
+                return "directions"
+            case "conversation":
+                # self.tts_call(self.gpt_call)
+                return "conversation"
+
+    def analyzeSpeech(self, user_input):
+        # This function uses the simple_gpt call to analyze the user input
+        # We return a string for use in the interact function
+        gpt_response = self.gpt_call(
+            f"You are a assistive robot named Cedar. Analyze the following user input and determine if the user is not talking to you, asking for directions, just holding a conversation (such as asking questions), or something else: {user_input}. "
+            f"Respond with 'not direct', 'directions', 'conversation', or 'other' based on the user's intent."
+        )
+        self.get_logger().info(f"GPT analyzed the user input: {gpt_response}")
+        return gpt_response.strip().lower()
 
     def run(self):
         self.get_logger().info('Startup done.')
@@ -235,8 +280,6 @@ class NavHub(Node):
                 # this is so we can toggle interaction off even if the user is here
                 while interacting:
                     self.get_logger().info("Continuing interaction")
-
-                    interact()
                     # gets text
                     person_response = self.stt_call()
                     self.cam_control(0.3, 0.0)
@@ -280,46 +323,19 @@ class NavHub(Node):
 
                     if not interacting:
                         break
+                    
                     # otherwise, we process the response
-                    gpt_response = self.nav_gpt_call(person_response)
-                    self.cam_control(0.5, 0)
-                    self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response[0]))     
-                    # speak out the gpts response
-                    self.tts_call(gpt_response[0])
-                    # if the user had a location in mind, we proceed with navigation
-                    if gpt_response[1] is not None:
-                        # obviously if the response is invalid, we ask them to repeat
-                        if gpt_response[1] == "invalid":
-                            # need to decide how to loop this
-                            self.tts_call("I'm sorry, I don't have that location on my map. Please try again.")
-                            self.history_call("assistant", "I'm sorry, I don't have that location on my map. Please try again.")
-                        elif gpt_response[1] in self.coord_table.keys() or gpt_response[1] == "other":
-                            if gpt_response[1] == "other":
-                                break
-                            self.add_coord_call(gpt_response[1])
-                            self.cam_control(0, 0.0)
-                            nav_future = self.nav_send_goal(1)
-                            # not used yet, this is for speaking while driving                            
-                            stt_future = self.stt_listen()
-                            while not nav_future.done():
-                                rclpy.spin_until_future_complete(self, nav_future, timeout_sec=1)
-                                self.get_logger().info("Driving...")
-                                # rclpy.spin_until_future_complete(self, stt_future, timeout_set=1)
-                                # if stt_future.done():
-                                #     user_input = stt_future.result().result.result
-                                #     self.get_logger().info('STT goal completed, user said: {0}'.format(user_input))
-                                #     gpt_response = self.nav_gpt_call(person_response)
-                                #     break
-                            # stt_future.cancel_goal_async()
-                            # rclpy.spin_until_future_complete(self, stt_future)
-                            
-                            self.get_logger().info('Nav goal completed')
-                            # self.tts_call("I have arrived at the location, is there anything else I can help you with?.")
-                            # self.history_call("assistant", "I have arrived at the location, is there anything else I can help you with?.")
-                        else: 
-                            # not invalid but not a location, just a conversation
-                            self.get_logger().info("Conversation detected")
-
+                    user_state = self.interact(person_response)
+                    
+                    # gpt_response = self.nav_gpt_call(person_response)
+                    # self.cam_control(0.5, 0)
+                    # self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response[0]))     
+                    # # speak out the gpts response
+                    # self.tts_call(gpt_response[0])
+                    # # if the user had a location in mind, we proceed with navigation
+                    # if gpt_response[1] is not None:
+                    #     self.interact(gpt_response)
+                    self.get_logger().info(f"User state: {user_state}")
         self.get_logger().info("code runs")
 
 def main(args=None):
