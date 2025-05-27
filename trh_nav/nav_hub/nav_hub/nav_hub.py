@@ -202,13 +202,26 @@ class NavHub(Node):
                         return True
         return False
 
+    # def interact(self) -> STATE:
+
+    #     user = self.stt_call()
+    #     analyze = analyze(user) -> not direct, directions, conversation, etc
+    #     match(analyze):
+    #         not direct:
+    #             return STATE("say nothing")
+    #         directions:
+    #             self.tts_call(self.nav_gpt_call(user))
+    #             return State("directions")
+    #         conversation:
+    #             self.tts_call(self.gpt_call)
+
 
     def run(self):
         self.get_logger().info('Startup done.')
         running = True
         # setting up the gpt to be a robot
         self.history_call("system", "You are a navigational assistant named Stretch. You will be guiding users to locations in a room, as well as conversing with them.")
-        while running:
+        while running:  
 
             # initial cam position a bit above level
             self.cam_control(0.3, 0.0)
@@ -222,6 +235,8 @@ class NavHub(Node):
                 # this is so we can toggle interaction off even if the user is here
                 while interacting:
                     self.get_logger().info("Continuing interaction")
+
+                    interact()
                     # gets text
                     person_response = self.stt_call()
                     self.cam_control(0.3, 0.0)
@@ -252,6 +267,7 @@ class NavHub(Node):
                         f"{self.coord_table.values()}. Does the following response indicate that the user is leaving? be very strict, only say yes if they say 'goodbye' 'cya' 'im leaving' or something similar"
                         f"Answer only y or n: {person_response}"
                     )
+
                     if check_for_goodbye == "y":
                         self.cam_control(0, 0.0)
                         self.tts_call("Goodbye! Let me know if you need anything else.")
