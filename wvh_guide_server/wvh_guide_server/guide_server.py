@@ -29,7 +29,7 @@ class GuideServer(Node):
 
         print("\n".join(summary))
         print("Path:", path)
-        result.strresult = str(summary)
+        result.strresult = " ".join(summary)
         goal_handle.succeed()
         return result
 

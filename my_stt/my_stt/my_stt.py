@@ -20,7 +20,7 @@ class SpeechToText(Node):
         super().__init__('speech_to_text')
 
         # parameters
-        self.declare_parameter('silence_duration', 1)  # seconds
+        self.declare_parameter('silence_duration', 2)  # seconds
         self.declare_parameter('calibration_duration', 3)  # seconds
         self.declare_parameter('interpreter', 'small')  # https://github.com/openai/whisper for info about model sizes, default is small
 

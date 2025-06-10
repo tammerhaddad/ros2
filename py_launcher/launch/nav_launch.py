@@ -90,16 +90,33 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([os.path.join(stretch_core_path, 'launch'), '/stretch_realsense.launch.py'])
     )
 
+    parcs_tts = Node(
+        package='parcs_tts',
+        executable='parcs_tts',
+        name='parcs_tts',
+        parameters=[
+            {'library': 'coqui'}
+        ]
+    )
+
+    guide_server = Node(
+        packages = 'wvh_guide_server',
+        executable = 'guide_server',
+        name = 'guide_server',
+    )
+
     return launch.LaunchDescription([
         nav_driver_launch,
         speech_to_audio,
         audio_to_text,
         text_to_directions,
         trh_nav,
-        text_to_audio,
+        # text_to_audio,
         audio_to_sound,
         # nav_hub,
         face_detection,
         stretch_control,
-        camera_node
+        camera_node,
+        parcs_tts,
+        guide_server
     ])

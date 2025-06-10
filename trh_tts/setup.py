@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'trh_tts'
+package_name = 'trh_tts_og'
 
 setup(
     name=package_name,

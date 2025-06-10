@@ -181,7 +181,7 @@ class RobotControlServer(Node):
             case _:
                 self.get_logger().info("Invalid robot movement order.")
             
-        goal_handle.succeed()
+        # goal_handle.succeed()
         return result
     
 

@@ -13,6 +13,7 @@ from visualization_msgs.msg import MarkerArray
 from datetime import datetime
 import copy
 import time
+import json
 
 class NavHub(Node):
 
@@ -25,7 +26,7 @@ class NavHub(Node):
         # self.tts_client = ActionClient(self, TTS, 'say')
 
         # initialize the clients
-        self.tts_client = ActionClient(self, StringToBool, 'trh_tts')
+        self.tts_client = ActionClient(self, StringToBool, 'parcs_tts')
         self.dir_client = ActionClient(self, GPTAction, 'dir_server')
         self.nav_client = ActionClient(self, Directions, 'nav_action')
         self.coord_client = ActionClient(self, SendCoord, "add_coord")
@@ -34,6 +35,7 @@ class NavHub(Node):
         self.gpt_history_client = ActionClient(self, GPTHistory, 'gpt_history')
         self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
         self.gpt_client = ActionClient(self, StringAction, 'gpt_server')
+        self.navigation_client = ActionClient(self, StringAction, 'guide_server')
 
         # wait for the action servers to be available
         # i log which one we are waiting for so we can see which one isnt running yet
@@ -57,7 +59,7 @@ class NavHub(Node):
         # possible locations, and their coordinates
         # self.coord_table = {"box": "4,1", "table": "1.2,0.5", "home": "0,0"} # 
         # self.coord_table = {"chair": "1,-1"}
-        self.coord_table = {"elevator": "2,-10", "exit": "-7,2", "lab": "2, -20", "home": "0,0"}
+        self.coord_table = {"elevator": "2,-10", "exit": "-7,2", "lab": "2,-20", "home": "0,0", "stairs": "14,3", "bathroom": "15,-2"}
         self.latest_face = []
         self.start_time = datetime.now()
 
@@ -66,7 +68,7 @@ class NavHub(Node):
         # self.get_logger().info('Adding input to GPT History...')
         # goal_msg.role = role
         # goal_msg.text = text
-        # future = self.gpt_history_client.send_goal_async(goal_msg)
+        # future = self.gpt_history_client.send_goal_async(goal_msg)f
         # rclpy.spin_until_future_complete(self, future)
         # goal_future = future.result().get_result_async()
         # rclpy.spin_until_future_complete(self, goal_future)
@@ -87,6 +89,20 @@ class NavHub(Node):
         gpt_response = goal_future.result().result.strresult
         self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response))
         return gpt_response
+    
+    def directions_call(self, text):
+        goal_msg = StringAction.Goal()  
+        self.get_logger().info('sending navigation goal...')
+        goal_msg.strrequest = text
+
+        future = self.navigation_client.send_goal_async(goal_msg)
+
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
+        rclpy.spin_until_future_complete(self, goal_future)
+        response = goal_future.result().result.strresult
+        self.get_logger().info('Navigation calculated: {0}'.format(response))
+        return response
 
     # Move Camera
     def cam_control(self, tilt, pan):
@@ -153,6 +169,7 @@ class NavHub(Node):
 
     # add a coordinate to the list
     def add_coord_call(self, goal_text):
+        self.get_logger().info(f'Coord Table: {self.coord_table}')
         coord = self.coord_table[goal_text]
         coord = coord.split(",")
         coord_to_send = SendCoord.Goal()
@@ -204,16 +221,19 @@ class NavHub(Node):
 
     def interact(self, user_input):
 
+        # FOR LATER IMPLEMENTATION
+        not_direct = False
         # user = self.stt_call()
         analyze = self.analyzeSpeech(user_input) # -> not direct, directions, conversation, etc
         # if the user is not talking to Cedar, we return
-        if analyze == "not direct":
+        if not_direct:
             return "not direct"
         
         gpt_response = self.nav_gpt_call(user_input)
-        self.cam_control(0.5, 0)
+        # self.cam_control(0.5, 0)
         self.get_logger().info('GPT goal completed, GPT said: {0}'.format(gpt_response[0]))     
         # speak out the gpts response
+        self.cam_control(0.5, 0.0)
         self.tts_call(gpt_response[0])
         match analyze:
             case "directions":
@@ -227,7 +247,7 @@ class NavHub(Node):
                     self.get_logger().info("CONVERSATION DETECTED AS DIRECTIONS")
                 else:
                     self.add_coord_call(gpt_response[1])
-                    self.cam_control(0, 0.0)
+                    # self.cam_control(0, 0.0)
                     nav_future = self.nav_send_goal(1)
                     # not used yet, this is for speaking while driving                            
                     stt_future = self.stt_listen()
@@ -255,8 +275,8 @@ class NavHub(Node):
         # This function uses the simple_gpt call to analyze the user input
         # We return a string for use in the interact function
         gpt_response = self.gpt_call(
-            f"You are a assistive robot named Cedar. Analyze the following user input and determine if the user is not talking to you, asking for directions, just holding a conversation (such as asking questions), or something else: {user_input}. "
-            f"Respond with 'not direct', 'directions', 'conversation', or 'other' based on the user's intent."
+            f"You are a assistive robot named Cedar. Analyze the following user input and determine if the user is asking for directions, just holding a conversation (such as asking questions), or something else: {user_input}. "
+            f"Respond with, 'directions', 'conversation', or 'other' based on the user's intent."
         )
         self.get_logger().info(f"GPT analyzed the user input: {gpt_response}")
         return gpt_response.strip().lower()
@@ -282,14 +302,14 @@ class NavHub(Node):
                     self.get_logger().info("Continuing interaction")
                     # gets text
                     person_response = self.stt_call()
-                    self.cam_control(0.3, 0.0)
+                    self.cam_control(0.3, 0.5)
                     # times out if the user doesn't respond
                     if person_response == "UserTimedOut404":
                         person_there = False
                         # just a sweep of the area
                         positions = [-1, -0.5, 0, 0.5, 1]
                         for i in positions:
-                            self.cam_control(i, 0.0)
+                            self.cam_control(0, i)
                             if self.wait_for_interactor(1, 1):
                                 person_there = True
                                 self.cam_control(0.5, 0.0)
